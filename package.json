@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:unit": "vitest run --exclude 'tests/sit/**' --exclude 'tests/uat/**'",
+    "test:sit": "vitest run tests/sit",
+    "test:uat": "vitest run tests/uat"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.1",
