@@ -1,0 +1,33 @@
+{
+  "id": "pdm-senior",
+  "title": "Senior Product Manager",
+  "years": "5年以上",
+  "core_skills": [
+    "產品策略與市場定位",
+    "商業模式設計",
+    "P&L 理解與成本意識",
+    "組織影響力與變革管理",
+    "平台化與生態系思維"
+  ],
+  "keywords": [
+    "product strategy", "platform", "ecosystem", "monetization",
+    "market sizing", "competitive analysis", "NPS", "LTV", "CAC",
+    "product-led growth", "enterprise sales"
+  ],
+  "responsibilities": [
+    "定義產品願景與 3-5 年策略",
+    "管理多個產品線或 PM 團隊",
+    "推動公司級跨部門計畫",
+    "代表產品參與董事會或投資人溝通"
+  ],
+  "interview_gaps": [
+    "product_vision",
+    "business_impact",
+    "team_leadership",
+    "market_strategy",
+    "stakeholder_influence",
+    "platform_thinking",
+    "quantified_outcomes",
+    "organizational_change"
+  ]
+}
