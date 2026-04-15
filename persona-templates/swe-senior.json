@@ -1,24 +1,40 @@
 {
   "id": "swe-senior",
-  "title": "Senior Software Engineer",
-  "years": "5年以上",
+  "title": "資深軟體工程師",
+  "years": "5+ 年",
   "core_skills": [
-    "系統設計與架構",
-    "效能優化與可擴展性",
-    "技術 mentoring",
-    "程式碼審查與品質把關",
-    "CI/CD 與 DevOps"
+    "Go",
+    "Java",
+    "Python",
+    "Kubernetes",
+    "AWS",
+    "Microservices",
+    "Mentorship"
   ],
   "keywords": [
-    "system design", "microservices", "distributed systems",
-    "load balancing", "database optimization", "API design",
-    "code review", "tech lead", "refactoring", "scalability"
+    "Backend",
+    "System Design",
+    "Distributed Systems",
+    "Docker",
+    "CI/CD",
+    "PostgreSQL",
+    "Redis",
+    "Kafka",
+    "Architecture",
+    "Performance Optimization",
+    "Technical Leadership",
+    "Cloud",
+    "Infrastructure",
+    "API Design",
+    "Code Review"
   ],
   "responsibilities": [
-    "設計並實作高流量系統",
-    "mentoring 初中級工程師",
-    "制定技術標準與最佳實踐",
-    "與 PM 協作定義技術方案"
+    "設計與開發高效能後端服務",
+    "進行系統架構設計與技術選型",
+    "指導 junior 工程師並推動技術文化",
+    "優化系統效能與成本",
+    "與跨功能團隊協作推動產品迭代",
+    "實作並維護 CI/CD pipeline"
   ],
   "interview_gaps": [
     "system_design",
