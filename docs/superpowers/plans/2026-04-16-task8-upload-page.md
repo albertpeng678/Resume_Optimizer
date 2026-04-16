@@ -48,13 +48,20 @@ describe('getCareerList', () => {
     expect(new Set(ids).size).toBe(18)
   })
 
-  it('each career has id and title', () => {
+  it('each career has id, title, and description', () => {
     const careers = getCareerList()
     for (const career of careers) {
       expect(career.id).toBeTruthy()
       expect(career.title).toBeTruthy()
+      expect(career.description).toBeTruthy()
       expect(career.id).not.toMatch(/-junior$|-mid$|-senior$/)
     }
+  })
+
+  it('title comes from mid template (no level prefix)', () => {
+    const careers = getCareerList()
+    const pm = careers.find(c => c.id === 'product-manager')
+    expect(pm?.title).toBe('產品經理')
   })
 
   it('career id can combine with level to find a valid persona', () => {
@@ -82,20 +89,36 @@ Edit `lib/persona/templates.ts` — 在檔案末尾新增：
 export interface CareerInfo {
   id: string
   title: string
+  description: string
 }
 
 export function getCareerList(): CareerInfo[] {
   const templates = loadTemplates()
-  const seen = new Map<string, string>()
+  const result = new Map<string, CareerInfo>()
 
   for (const persona of Object.values(templates)) {
     const careerId = persona.id.replace(/-(junior|mid|senior)$/, '')
-    if (!seen.has(careerId)) {
-      seen.set(careerId, persona.title)
+    const isMid = persona.id.endsWith('-mid')
+
+    if (!result.has(careerId)) {
+      result.set(careerId, {
+        id: careerId,
+        title: persona.title,
+        description: persona.responsibilities.slice(0, 2).join('、'),
+      })
+    }
+
+    // Prefer mid template for title and description
+    if (isMid) {
+      result.set(careerId, {
+        id: careerId,
+        title: persona.title,
+        description: persona.responsibilities.slice(0, 2).join('、'),
+      })
     }
   }
 
-  return Array.from(seen, ([id, title]) => ({ id, title }))
+  return Array.from(result.values())
 }
 ```
 
@@ -559,6 +582,7 @@ describe('PersonaCard', () => {
   const props = {
     career: 'product-manager',
     title: '產品經理',
+    description: '定義產品需求並撰寫規格文件、協調跨部門資源推動產品開發與上線',
     reason: '你的經歷與產品規劃高度相關',
     selected: false,
     onSelect: vi.fn(),
@@ -579,6 +603,11 @@ describe('PersonaCard', () => {
     render(<PersonaCard {...props} reason={undefined} />)
     expect(screen.getByText('產品經理')).toBeDefined()
     expect(screen.queryByText('AI 推薦')).toBeNull()
+  })
+
+  it('renders tooltip with description', () => {
+    render(<PersonaCard {...props} />)
+    expect(screen.getByText(props.description)).toBeDefined()
   })
 
   it('calls onSelect when clicked', () => {
@@ -604,17 +633,18 @@ import { CheckCircle2, Star } from 'lucide-react'
 interface PersonaCardProps {
   career: string
   title: string
+  description: string
   reason?: string
   selected: boolean
   onSelect: () => void
 }
 
-export function PersonaCard({ title, reason, selected, onSelect }: PersonaCardProps) {
+export function PersonaCard({ title, description, reason, selected, onSelect }: PersonaCardProps) {
   return (
     <div
       onClick={onSelect}
       className={`
-        border-2 rounded-xl p-4 cursor-pointer transition-colors duration-200
+        group relative border-2 rounded-xl p-4 cursor-pointer transition-colors duration-200
         ${selected
           ? 'border-primary bg-primary/5'
           : 'border-secondary/30 hover:border-primary/50'
@@ -635,6 +665,12 @@ export function PersonaCard({ title, reason, selected, onSelect }: PersonaCardPr
           {reason && <p className="text-sm text-primary">{reason}</p>}
         </div>
         {selected && <CheckCircle2 data-testid="check-icon" className="w-5 h-5 text-primary flex-shrink-0" />}
+      </div>
+      <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-secondary/20
+        rounded-lg px-4 py-3 text-sm text-ink/60 leading-relaxed shadow-md
+        opacity-0 invisible group-hover:opacity-100 group-hover:visible
+        transition-all duration-200 z-10 pointer-events-none">
+        {description}
       </div>
     </div>
   )
@@ -752,6 +788,7 @@ import { LevelCard } from '@/components/persona/LevelCard'
 interface CareerInfo {
   id: string
   title: string
+  description: string
 }
 
 interface Recommendation {
@@ -852,16 +889,20 @@ export function HomeClient({ careers }: HomeClientProps) {
               <p className="text-ink/60">根據你的履歷，AI 推薦以下方向</p>
             </div>
             <div className="space-y-3">
-              {recommendations.map((rec) => (
-                <PersonaCard
-                  key={rec.career}
-                  career={rec.career}
-                  title={rec.title}
-                  reason={rec.reason}
-                  selected={selectedCareer === rec.career}
-                  onSelect={() => setSelectedCareer(rec.career)}
-                />
-              ))}
+              {recommendations.map((rec) => {
+                const careerInfo = careers.find((c) => c.id === rec.career)
+                return (
+                  <PersonaCard
+                    key={rec.career}
+                    career={rec.career}
+                    title={rec.title}
+                    description={careerInfo?.description ?? ''}
+                    reason={rec.reason}
+                    selected={selectedCareer === rec.career}
+                    onSelect={() => setSelectedCareer(rec.career)}
+                  />
+                )
+              })}
             </div>
 
             {!showAllCareers && otherCareers.length > 0 && (
@@ -882,6 +923,7 @@ export function HomeClient({ careers }: HomeClientProps) {
                     key={career.id}
                     career={career.id}
                     title={career.title}
+                    description={career.description}
                     selected={selectedCareer === career.id}
                     onSelect={() => setSelectedCareer(career.id)}
                   />

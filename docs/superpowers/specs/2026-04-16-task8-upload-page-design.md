@@ -21,7 +21,9 @@
 - 上傳完成後自動進入 Step 2
 
 ### Step 2：選擇目標職位
-- 顯示 AI 推薦的 3 個職位類別（career name + reason），每個都標記「AI 推薦」
+- 所有職位顯示**繁體中文職稱**（取自 mid-level 模板的 title）
+- 顯示 AI 推薦的 3 個職位類別（中文職稱 + reason），每個都標記「AI 推薦」
+- **Hover 說明**：滑鼠移到任何職位卡片上，顯示浮動提示框描述該職位工作內容（取自 mid-level 模板 responsibilities 前 2 項）
 - 下方有「查看全部職位」按鈕，點擊展開完整 18 個 career 列表（排除已推薦的）
 - 非推薦的卡片不顯示「AI 推薦」標記和 reason
 - 用戶點選一個職位，按「下一步」進入 Step 3
@@ -106,14 +108,15 @@ HomeClient (client)
 
 ```typescript
 export interface CareerInfo {
-  id: string    // e.g. "product-manager"
-  title: string // e.g. "Product Manager"
+  id: string          // e.g. "product-manager"
+  title: string       // e.g. "產品經理"（取自 mid 模板）
+  description: string // e.g. "定義產品需求並撰寫規格文件、協調跨部門資源推動產品開發與上線"
 }
 
 export function getCareerList(): CareerInfo[]
 ```
 
-從 54 個模板的 ID 中去除 `-junior`/`-mid`/`-senior` 後綴，取不重複的 career 類別，title 從任一對應模板取得（去掉 level 文字部分）。
+從 54 個模板中，以 mid-level 模板為基準：title 取 mid 模板的 title（避免 junior 帶「專員」、senior 帶「資深」差異），description 取 mid 模板 responsibilities 前 2 項用頓號連接。
 
 ## 設計系統
 
