@@ -4,11 +4,17 @@ import {
   buildCareerAdvisorPrompt,
   parseGapStatus,
   stripGapStatus,
+  parseQuantifyTrigger,
+  stripQuantifyTrigger,
 } from '@/lib/agents/career-advisor'
 import { getPersona } from '@/lib/persona/templates'
 import { createServerClient } from '@/lib/supabase'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
+function sseEvent(eventType: string, data: string): string {
+  return `event: ${eventType}\ndata: ${data}\n\n`
+}
 
 export async function POST(req: NextRequest) {
   // Input validation
@@ -80,7 +86,8 @@ export async function POST(req: NextRequest) {
     content: string
   }>
 
-  // Stream response, accumulate full content, hold back last line to filter [GAPS_STATUS]
+  // Stream SSE response, accumulate full content
+  // Hold back streaming until we have complete lines (to filter metadata lines at the end)
   let fullContent = ''
   let flushedUpTo = 0
   const encoder = new TextEncoder()
@@ -92,24 +99,40 @@ export async function POST(req: NextRequest) {
           const delta = chunk.choices[0]?.delta?.content || ''
           fullContent += delta
 
-          // Stream all complete lines except the last (which might contain [GAPS_STATUS])
+          // Stream all complete lines except the last (which might contain metadata)
           const lastNewline = fullContent.lastIndexOf('\n', fullContent.length - 1)
           if (lastNewline > flushedUpTo) {
             const toFlush = fullContent.slice(flushedUpTo, lastNewline + 1)
-            controller.enqueue(encoder.encode(toFlush))
+            controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(toFlush))))
             flushedUpTo = lastNewline + 1
           }
         }
 
-        // Flush remaining content, stripping [GAPS_STATUS] line
-        const remaining = stripGapStatus(fullContent.slice(flushedUpTo))
-        if (remaining) {
-          controller.enqueue(encoder.encode(remaining))
+        // Process remaining content: strip both [GAPS_STATUS] and [QUANTIFY_TRIGGER]
+        const remaining = fullContent.slice(flushedUpTo)
+        const cleanRemaining = stripGapStatus(stripQuantifyTrigger(remaining)).trimEnd()
+        if (cleanRemaining) {
+          controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(cleanRemaining))))
         }
 
-        // Update Supabase with clean content
+        // Parse metadata from full content
         const gapStatus = parseGapStatus(fullContent)
-        const cleanContent = stripGapStatus(fullContent)
+        const quantifyTrigger = parseQuantifyTrigger(fullContent)
+
+        // Build clean content for Supabase storage (strip all metadata)
+        const cleanContent = stripGapStatus(stripQuantifyTrigger(fullContent)).trim()
+
+        // Emit trigger event if present
+        if (quantifyTrigger) {
+          controller.enqueue(
+            encoder.encode(sseEvent('trigger', JSON.stringify(quantifyTrigger)))
+          )
+        }
+
+        // Emit done event
+        controller.enqueue(encoder.encode(sseEvent('done', '')))
+
+        // Update Supabase with clean content
         const updatedHistory = [
           ...history,
           { role: 'user', content: userMessage },
@@ -141,8 +164,9 @@ export async function POST(req: NextRequest) {
 
   return new Response(readable, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Transfer-Encoding': 'chunked',
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
     },
   })
 }
