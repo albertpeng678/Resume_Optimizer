@@ -47,6 +47,9 @@ export async function POST(req: NextRequest) {
   if (!roundNumber || roundNumber < 1 || roundNumber > 5) {
     return NextResponse.json({ error: 'roundNumber must be 1-5' }, { status: 400 })
   }
+  if (!Array.isArray(messages)) {
+    return NextResponse.json({ error: 'messages must be an array' }, { status: 400 })
+  }
 
   const db = createServerClient()
   const { data: session, error } = await db
@@ -114,10 +117,15 @@ export async function POST(req: NextRequest) {
     }
 
     const existingData = (session.quantify_data ?? []) as QuantifyEntry[]
-    await db.from('sessions').update({
+    const { error: updateError } = await db.from('sessions').update({
       quantify_data: [...existingData, newEntry],
       updated_at: new Date().toISOString(),
     }).eq('id', sessionId)
+
+    if (updateError) {
+      console.error('Failed to save quantify entry:', updateError)
+      return NextResponse.json({ error: 'Failed to save quantify data' }, { status: 500 })
+    }
   }
 
   const responseBody: QuantifyResponse = {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Download, ChevronDown, ChevronUp, Info } from 'lucide-react'
 import { QuantifyEntry } from '@/lib/agents/quantify-advisor'
 
@@ -39,8 +39,8 @@ function QuantifyBadge({ number, entry }: QuantifyBadgeProps) {
 function parseInlineContent(
   text: string,
   quantifyMap: Map<string, QuantifyEntry>
-): React.ReactNode[] {
-  const parts: React.ReactNode[] = []
+): ReactNode[] {
+  const parts: ReactNode[] = []
   const regex = /\[Q:([^\]]+)\](.*?)\[\/Q\]/g
   let lastIndex = 0
   let match: RegExpExecArray | null

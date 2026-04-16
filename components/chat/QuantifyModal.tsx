@@ -32,7 +32,6 @@ export function QuantifyModal({
   const [isLoading, setIsLoading] = useState(false)
   const [entryId, setEntryId] = useState<string | null>(null)
   const [result, setResult] = useState<QuantifyResult | null>(null)
-  const [isFailed, setIsFailed] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -52,7 +51,6 @@ export function QuantifyModal({
       setIsLoading(false)
       setEntryId(null)
       setResult(null)
-      setIsFailed(false)
       setIsComplete(false)
     }
   }, [isOpen])
@@ -92,7 +90,6 @@ export function QuantifyModal({
       if (data.isComplete) {
         setIsComplete(true)
         setResult(data.result)
-        if (!data.result) setIsFailed(true)
       } else {
         setRound((r) => r + 1)
       }

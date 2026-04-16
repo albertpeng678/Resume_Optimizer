@@ -100,10 +100,14 @@ export async function POST(req: NextRequest) {
           fullContent += delta
 
           // Stream all complete lines except the last (which might contain metadata)
+          // Also strip [QUANTIFY_TRIGGER] lines eagerly to prevent them leaking as visible text
           const lastNewline = fullContent.lastIndexOf('\n', fullContent.length - 1)
           if (lastNewline > flushedUpTo) {
             const toFlush = fullContent.slice(flushedUpTo, lastNewline + 1)
-            controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(toFlush))))
+            const filteredFlush = toFlush.replace(/\[QUANTIFY_TRIGGER\]:\s*\{[^\n]+\}\n?/g, '')
+            if (filteredFlush) {
+              controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(filteredFlush))))
+            }
             flushedUpTo = lastNewline + 1
           }
         }

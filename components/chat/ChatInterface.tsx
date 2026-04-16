@@ -61,13 +61,15 @@ export function ChatInterface({
   const syncSession = useCallback(async () => {
     try {
       const res = await fetch(`/api/session/${sessionId}`)
-      if (res.ok) {
-        const data = await res.json()
-        setGapsCompleted(data.gaps_completed ?? 0)
-        setQuantifyData(data.quantify_data ?? [])
+      if (!res.ok) {
+        console.warn('syncSession: unexpected status', res.status)
+        return
       }
-    } catch {
-      // Non-critical, ignore
+      const data = await res.json()
+      setGapsCompleted(data.gaps_completed ?? 0)
+      setQuantifyData(data.quantify_data ?? [])
+    } catch (err) {
+      console.warn('syncSession failed:', err)
     }
   }, [sessionId])
 
