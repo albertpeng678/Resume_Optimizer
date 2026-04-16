@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 2 v3 — 中文職稱 + Hover 說明</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',system-ui,sans-serif; background:#F0F9FF; color:#0C4A6E; min-height:100vh; display:flex; justify-content:center; padding:48px 16px; }
+  .container { width:100%; max-width:640px; }
+
+  .progress { display:flex; align-items:center; margin-bottom:40px; }
+  .step-dot { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; z-index:1; }
+  .dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+  .dot.active { background:#0369A1; color:white; }
+  .dot.pending { background:#E0F2FE; color:#0C4A6E80; }
+  .dot.done { background:#22C55E; color:white; }
+  .step-label { font-size:12px; margin-top:6px; font-weight:500; }
+  .step-label.active { color:#0369A1; }
+  .step-label.pending { color:#0C4A6E80; }
+  .step-label.done { color:#22C55E; }
+  .line { flex:2; height:2px; margin-top:-20px; }
+  .line.pending { background:#E0F2FE; }
+  .line.done { background:#22C55E; }
+
+  .title { font-size:24px; font-weight:700; text-align:center; margin-bottom:6px; }
+  .subtitle { text-align:center; color:#0C4A6E99; margin-bottom:24px; }
+
+  .persona-list { display:flex; flex-direction:column; gap:12px; }
+
+  /* Card with tooltip */
+  .persona-card { border:2px solid #E0F2FE; border-radius:12px; padding:16px; cursor:pointer; transition:all 0.2s; display:flex; justify-content:space-between; align-items:center; position:relative; }
+  .persona-card:hover { border-color:#0369A180; }
+  .persona-card.selected { border-color:#0369A1; background:#0369A108; }
+  .persona-name { font-weight:600; font-size:15px; }
+  .persona-badge { font-size:11px; color:#22C55E; font-weight:500; margin-left:8px; }
+  .persona-reason { font-size:13px; color:#0369A1; margin-top:4px; }
+  .check { color:#0369A1; font-size:20px; font-weight:700; display:none; }
+  .persona-card.selected .check { display:block; }
+
+  /* Tooltip */
+  .tooltip { display:none; position:absolute; left:0; right:0; top:calc(100% + 6px); background:white; border:1px solid #E0F2FE; border-radius:8px; padding:12px 16px; font-size:13px; color:#0C4A6E99; line-height:1.5; box-shadow:0 4px 12px rgba(0,0,0,0.08); z-index:10; }
+  .persona-card:hover .tooltip { display:block; }
+
+  .show-all-btn { width:100%; padding:12px; text-align:center; font-size:14px; color:#0369A1; font-weight:500; cursor:pointer; transition:all 0.2s; background:none; border:none; }
+  .show-all-btn:hover { color:#0369A1CC; }
+
+  .other-section { display:none; }
+  .other-section.visible { display:block; }
+  .other-label { font-size:13px; color:#0C4A6E66; font-weight:500; margin-bottom:8px; }
+
+  .btn { width:100%; margin-top:24px; padding:16px; border-radius:12px; border:none; font-weight:600; font-size:16px; cursor:pointer; transition:all 0.2s; }
+  .btn-primary { background:#22C55E; color:white; }
+  .btn-primary:hover { background:#16A34A; }
+
+  .nav-hint { text-align:center; margin-top:16px; font-size:13px; color:#0369A1; }
+  .nav-hint a { color:#0369A1; font-weight:600; text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="progress">
+    <div class="step-dot">
+      <div class="dot done">✓</div>
+      <span class="step-label done">上傳履歷</span>
+    </div>
+    <div class="line done"></div>
+    <div class="step-dot">
+      <div class="dot active">2</div>
+      <span class="step-label active">選擇職位</span>
+    </div>
+    <div class="line pending"></div>
+    <div class="step-dot">
+      <div class="dot pending">3</div>
+      <span class="step-label pending">選擇年資</span>
+    </div>
+  </div>
+
+  <h2 class="title">選擇目標職位</h2>
+  <p class="subtitle">根據你的履歷，AI 推薦以下方向</p>
+
+  <!-- AI 推薦的 3 個（中文職稱 + hover 說明） -->
+  <div class="persona-list" id="recommended">
+    <div class="persona-card selected" onclick="selectCard(this)">
+      <div>
+        <span class="persona-name">產品經理</span>
+        <span class="persona-badge">★ AI 推薦</span>
+        <p class="persona-reason">你的經歷與產品規劃、跨團隊協作高度相關</p>
+      </div>
+      <div class="check">✓</div>
+      <div class="tooltip">定義產品需求並撰寫規格文件、協調跨部門資源推動產品開發與上線</div>
+    </div>
+    <div class="persona-card" onclick="selectCard(this)">
+      <div>
+        <span class="persona-name">軟體工程師</span>
+        <span class="persona-badge">★ AI 推薦</span>
+        <p class="persona-reason">具備紮實的技術背景和系統設計經驗</p>
+      </div>
+      <div class="check">✓</div>
+      <div class="tooltip">設計與開發軟體系統架構、撰寫高品質程式碼並進行代碼審查</div>
+    </div>
+    <div class="persona-card" onclick="selectCard(this)">
+      <div>
+        <span class="persona-name">數據分析師</span>
+        <span class="persona-badge">★ AI 推薦</span>
+        <p class="persona-reason">數據分析與洞察能力突出</p>
+      </div>
+      <div class="check">✓</div>
+      <div class="tooltip">進行數據收集與清洗、建立分析模型並產出商業洞察報告</div>
+    </div>
+  </div>
+
+  <!-- 查看全部按鈕 -->
+  <button class="show-all-btn" id="showAllBtn" onclick="toggleAllCareers()">
+    查看全部職位 (15)
+  </button>
+
+  <!-- 其他職位（預設隱藏，中文職稱 + hover 說明） -->
+  <div class="other-section" id="otherSection">
+    <p class="other-label">其他職位</p>
+    <div class="persona-list">
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">專案經理</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">規劃與管理專案時程、協調團隊資源確保專案如期交付</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">UI/UX 設計師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">設計使用者介面與互動流程、進行用戶研究與可用性測試</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">資料工程師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">設計和開發可擴展的數據管道和基礎設施</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">DevOps / SRE 工程師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">建立 CI/CD 流程、維護系統穩定性與自動化部署</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">機器學習工程師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">開發機器學習模型、建立資料處理與模型部署流程</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">行銷專員</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">策劃行銷活動、管理廣告投放與分析行銷成效</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">內容行銷專員</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">策劃內容策略、撰寫行銷文案與管理內容發布</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">產品行銷專員</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">制定產品定位與上市策略、進行市場分析與競品研究</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">商務開發專員</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">開發新客戶與合作夥伴、建立商業合作關係</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">客戶成功專員</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">管理客戶關係、提升客戶留存率與滿意度</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">Scrum Master</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">推動敏捷開發流程、協助團隊排除障礙並持續改善</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">解決方案架構師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">設計整體技術解決方案、評估技術可行性與架構規劃</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">資安工程師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">進行資安風險評估、建立安全防護機制與事件應對</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">技術支援工程師</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">排除技術問題、提供客戶技術諮詢與支援</div>
+      </div>
+      <div class="persona-card" onclick="selectCard(this)">
+        <div><span class="persona-name">電商營運專員</span></div>
+        <div class="check">✓</div>
+        <div class="tooltip">管理電商平台營運、優化銷售流程與庫存管理</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary">下一步</button>
+
+  <div class="nav-hint"><a href="wizard-step1.html">← Step 1</a> ｜ <a href="wizard-step3.html">Step 3 →</a></div>
+</div>
+
+<script>
+function selectCard(el) {
+  document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleAllCareers() {
+  const section = document.getElementById('otherSection');
+  const btn = document.getElementById('showAllBtn');
+  if (section.classList.contains('visible')) {
+    section.classList.remove('visible');
+    btn.textContent = '查看全部職位 (15)';
+  } else {
+    section.classList.add('visible');
+    btn.textContent = '收起';
+  }
+}
+</script>
+</body>
+</html>

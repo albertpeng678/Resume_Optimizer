@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 3 — 選擇年資</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',system-ui,sans-serif; background:#F0F9FF; color:#0C4A6E; min-height:100vh; display:flex; justify-content:center; padding:48px 16px; }
+  .container { width:100%; max-width:640px; }
+
+  .progress { display:flex; align-items:center; margin-bottom:40px; }
+  .step-dot { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; z-index:1; }
+  .dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+  .dot.active { background:#0369A1; color:white; }
+  .dot.pending { background:#E0F2FE; color:#0C4A6E80; }
+  .dot.done { background:#22C55E; color:white; }
+  .step-label { font-size:12px; margin-top:6px; font-weight:500; }
+  .step-label.active { color:#0369A1; }
+  .step-label.pending { color:#0C4A6E80; }
+  .step-label.done { color:#22C55E; }
+  .line { flex:2; height:2px; margin-top:-20px; }
+  .line.pending { background:#E0F2FE; }
+  .line.done { background:#22C55E; }
+
+  .title { font-size:24px; font-weight:700; text-align:center; margin-bottom:6px; }
+  .subtitle { text-align:center; color:#0C4A6E99; margin-bottom:28px; }
+
+  .level-grid { display:flex; gap:12px; }
+  .level-card { flex:1; border:2px solid #E0F2FE; border-radius:12px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .level-card:hover { border-color:#0369A180; }
+  .level-card.selected { border-color:#0369A1; background:#0369A108; }
+  .level-name { font-weight:600; font-size:16px; margin-bottom:4px; }
+  .level-years { font-size:13px; color:#0C4A6E99; }
+
+  .btn { width:100%; margin-top:28px; padding:16px; border-radius:12px; border:none; font-weight:600; font-size:16px; cursor:pointer; transition:all 0.2s; }
+  .btn-primary { background:#22C55E; color:white; }
+  .btn-primary:hover { background:#16A34A; }
+
+  .nav-hint { text-align:center; margin-top:16px; font-size:13px; color:#0369A1; }
+  .nav-hint a { color:#0369A1; font-weight:600; text-decoration:underline; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="progress">
+    <div class="step-dot">
+      <div class="dot done">✓</div>
+      <span class="step-label done">上傳履歷</span>
+    </div>
+    <div class="line done"></div>
+    <div class="step-dot">
+      <div class="dot done">✓</div>
+      <span class="step-label done">選擇職位</span>
+    </div>
+    <div class="line done"></div>
+    <div class="step-dot">
+      <div class="dot active">3</div>
+      <span class="step-label active">選擇年資</span>
+    </div>
+  </div>
+
+  <h2 class="title">選擇目標年資</h2>
+  <p class="subtitle">Product Manager</p>
+
+  <div class="level-grid">
+    <div class="level-card" onclick="selectLevel(this)">
+      <p class="level-name">Junior</p>
+      <p class="level-years">0-2 年</p>
+    </div>
+    <div class="level-card selected" onclick="selectLevel(this)">
+      <p class="level-name">Mid-level</p>
+      <p class="level-years">3-5 年</p>
+    </div>
+    <div class="level-card" onclick="selectLevel(this)">
+      <p class="level-name">Senior</p>
+      <p class="level-years">6+ 年</p>
+    </div>
+  </div>
+
+  <button class="btn btn-primary">開始訪談</button>
+
+  <div class="nav-hint"><a href="wizard-step2.html">← Step 2</a></div>
+</div>
+
+<script>
+function selectLevel(el) {
+  document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>

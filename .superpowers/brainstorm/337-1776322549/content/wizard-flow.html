@@ -1,0 +1,151 @@
+<h2>Task 8：Step-by-Step Wizard 設計</h2>
+<p class="subtitle">頂部進度條 + 一次只顯示一個步驟</p>
+
+<div class="section">
+  <h3>Step 1：上傳履歷</h3>
+  <div class="mockup">
+    <div class="mockup-header">進度 1/3 — 上傳</div>
+    <div class="mockup-body" style="padding:24px;">
+      <!-- Progress Bar -->
+      <div style="display:flex; align-items:center; gap:0; margin-bottom:32px;">
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#0369A1; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">1</div>
+          <span style="font-size:12px; color:#0369A1; font-weight:500; margin-top:4px;">上傳履歷</span>
+        </div>
+        <div style="flex:2; height:2px; background:#0EA5E94D; margin-top:-16px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#0EA5E94D; color:#0C4A6E99; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">2</div>
+          <span style="font-size:12px; color:#0C4A6E99; margin-top:4px;">選擇職位</span>
+        </div>
+        <div style="flex:2; height:2px; background:#0EA5E94D; margin-top:-16px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#0EA5E94D; color:#0C4A6E99; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">3</div>
+          <span style="font-size:12px; color:#0C4A6E99; margin-top:4px;">選擇年資</span>
+        </div>
+      </div>
+
+      <!-- Upload Area -->
+      <div style="text-align:center;">
+        <p style="font-size:24px; font-weight:700; color:#0C4A6E; margin-bottom:4px;">AI 履歷優化器</p>
+        <p style="color:#0C4A6E99; margin-bottom:24px;">上傳履歷，讓 AI 透過訪談了解你的真實價值</p>
+        <div style="border:2px dashed #0EA5E9; border-radius:12px; padding:48px 24px;">
+          <div style="font-size:32px; color:#0369A1; margin-bottom:8px;">↑</div>
+          <p style="font-size:18px; font-weight:600; color:#0C4A6E;">上傳你的履歷</p>
+          <p style="color:#0C4A6E99; font-size:14px;">PDF 或 DOCX，拖曳或點擊上傳</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Step 2：選擇目標職位</h3>
+  <div class="mockup">
+    <div class="mockup-header">進度 2/3 — 選職位</div>
+    <div class="mockup-body" style="padding:24px;">
+      <!-- Progress Bar -->
+      <div style="display:flex; align-items:center; gap:0; margin-bottom:32px;">
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#22C55E; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">✓</div>
+          <span style="font-size:12px; color:#22C55E; font-weight:500; margin-top:4px;">上傳履歷</span>
+        </div>
+        <div style="flex:2; height:2px; background:#0369A1; margin-top:-16px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#0369A1; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">2</div>
+          <span style="font-size:12px; color:#0369A1; font-weight:500; margin-top:4px;">選擇職位</span>
+        </div>
+        <div style="flex:2; height:2px; background:#0EA5E94D; margin-top:-16px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#0EA5E94D; color:#0C4A6E99; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">3</div>
+          <span style="font-size:12px; color:#0C4A6E99; margin-top:4px;">選擇年資</span>
+        </div>
+      </div>
+
+      <!-- Persona Selection -->
+      <p style="text-align:center; font-size:20px; font-weight:700; color:#0C4A6E; margin-bottom:4px;">選擇目標職位</p>
+      <p style="text-align:center; color:#0C4A6E99; margin-bottom:20px;">根據你的履歷，AI 推薦以下方向</p>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="border:2px solid #0369A1; background:#0369A108; border-radius:12px; padding:16px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:600; color:#0C4A6E;">Product Manager</span>
+              <span style="font-size:11px; color:#22C55E; font-weight:500;">★ AI 推薦</span>
+            </div>
+            <p style="font-size:13px; color:#0369A1; margin-top:4px;">你的經歷與產品規劃、跨團隊協作高度相關</p>
+          </div>
+          <div style="color:#0369A1; font-size:18px;">✓</div>
+        </div>
+
+        <div style="border:2px solid #0EA5E94D; border-radius:12px; padding:16px; cursor:pointer;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:600; color:#0C4A6E;">Software Engineer</span>
+            <span style="font-size:11px; color:#22C55E; font-weight:500;">★ AI 推薦</span>
+          </div>
+          <p style="font-size:13px; color:#0369A1; margin-top:4px;">具備紮實的技術背景和系統設計經驗</p>
+        </div>
+
+        <div style="border:2px solid #0EA5E94D; border-radius:12px; padding:16px; cursor:pointer;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:600; color:#0C4A6E;">Data Analyst</span>
+            <span style="font-size:11px; color:#22C55E; font-weight:500;">★ AI 推薦</span>
+          </div>
+          <p style="font-size:13px; color:#0369A1; margin-top:4px;">數據分析與洞察能力突出</p>
+        </div>
+      </div>
+
+      <button style="width:100%; margin-top:20px; padding:14px; border-radius:12px; background:#22C55E; color:white; font-weight:600; font-size:16px; border:none; cursor:pointer;">
+        下一步
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Step 3：選擇年資等級</h3>
+  <div class="mockup">
+    <div class="mockup-header">進度 3/3 — 選年資</div>
+    <div class="mockup-body" style="padding:24px;">
+      <!-- Progress Bar -->
+      <div style="display:flex; align-items:center; gap:0; margin-bottom:32px;">
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#22C55E; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">✓</div>
+          <span style="font-size:12px; color:#22C55E; font-weight:500; margin-top:4px;">上傳履歷</span>
+        </div>
+        <div style="flex:2; height:2px; background:#22C55E; margin-top:-16px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#22C55E; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">✓</div>
+          <span style="font-size:12px; color:#22C55E; font-weight:500; margin-top:4px;">選擇職位</span>
+        </div>
+        <div style="flex:2; height:2px; background:#0369A1; margin-top:-16px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div style="width:32px; height:32px; border-radius:50%; background:#0369A1; color:white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px;">3</div>
+          <span style="font-size:12px; color:#0369A1; font-weight:500; margin-top:4px;">選擇年資</span>
+        </div>
+      </div>
+
+      <!-- Level Selection -->
+      <p style="text-align:center; font-size:20px; font-weight:700; color:#0C4A6E; margin-bottom:4px;">選擇目標年資</p>
+      <p style="text-align:center; color:#0C4A6E99; margin-bottom:20px;">Product Manager</p>
+
+      <div style="display:flex; gap:12px;">
+        <div style="flex:1; border:2px solid #0EA5E94D; border-radius:12px; padding:20px; text-align:center; cursor:pointer;">
+          <p style="font-weight:600; color:#0C4A6E; font-size:16px;">Junior</p>
+          <p style="font-size:13px; color:#0C4A6E99; margin-top:4px;">0-2 年</p>
+        </div>
+        <div style="flex:1; border:2px solid #0369A1; background:#0369A108; border-radius:12px; padding:20px; text-align:center; cursor:pointer;">
+          <p style="font-weight:600; color:#0C4A6E; font-size:16px;">Mid-level</p>
+          <p style="font-size:13px; color:#0C4A6E99; margin-top:4px;">3-5 年</p>
+        </div>
+        <div style="flex:1; border:2px solid #0EA5E94D; border-radius:12px; padding:20px; text-align:center; cursor:pointer;">
+          <p style="font-weight:600; color:#0C4A6E; font-size:16px;">Senior</p>
+          <p style="font-size:13px; color:#0C4A6E99; margin-top:4px;">6+ 年</p>
+        </div>
+      </div>
+
+      <button style="width:100%; margin-top:20px; padding:14px; border-radius:12px; background:#22C55E; color:white; font-weight:600; font-size:16px; border:none; cursor:pointer;">
+        開始訪談
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 1 — 上傳履歷</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',system-ui,sans-serif; background:#F0F9FF; color:#0C4A6E; min-height:100vh; display:flex; justify-content:center; padding:48px 16px; }
+  .container { width:100%; max-width:640px; }
+
+  /* Progress Bar */
+  .progress { display:flex; align-items:center; margin-bottom:40px; }
+  .step-dot { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; z-index:1; }
+  .dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+  .dot.active { background:#0369A1; color:white; }
+  .dot.pending { background:#E0F2FE; color:#0C4A6E80; }
+  .dot.done { background:#22C55E; color:white; }
+  .step-label { font-size:12px; margin-top:6px; font-weight:500; }
+  .step-label.active { color:#0369A1; }
+  .step-label.pending { color:#0C4A6E80; }
+  .step-label.done { color:#22C55E; }
+  .line { flex:2; height:2px; margin-top:-20px; }
+  .line.pending { background:#E0F2FE; }
+  .line.done { background:#22C55E; }
+
+  /* Content */
+  .title { font-size:28px; font-weight:700; text-align:center; margin-bottom:6px; }
+  .subtitle { text-align:center; color:#0C4A6E99; margin-bottom:32px; }
+
+  /* Upload Zone */
+  .upload-zone { border:2px dashed #0EA5E9; border-radius:16px; padding:56px 24px; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .upload-zone:hover { border-color:#0369A1; background:#0369A108; }
+  .upload-icon { font-size:40px; color:#0369A1; margin-bottom:12px; }
+  .upload-title { font-size:18px; font-weight:600; }
+  .upload-hint { font-size:14px; color:#0C4A6E99; margin-top:4px; }
+
+  /* Nav hint */
+  .nav-hint { text-align:center; margin-top:32px; padding:12px; background:#E0F2FE; border-radius:8px; font-size:13px; color:#0369A1; }
+  .nav-hint a { color:#0369A1; font-weight:600; text-decoration:underline; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Progress Bar -->
+  <div class="progress">
+    <div class="step-dot">
+      <div class="dot active">1</div>
+      <span class="step-label active">上傳履歷</span>
+    </div>
+    <div class="line pending"></div>
+    <div class="step-dot">
+      <div class="dot pending">2</div>
+      <span class="step-label pending">選擇職位</span>
+    </div>
+    <div class="line pending"></div>
+    <div class="step-dot">
+      <div class="dot pending">3</div>
+      <span class="step-label pending">選擇年資</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <h1 class="title">AI 履歷優化器</h1>
+  <p class="subtitle">上傳履歷，讓 AI 透過訪談了解你的真實價值</p>
+
+  <div class="upload-zone">
+    <div class="upload-icon">↑</div>
+    <p class="upload-title">上傳你的履歷</p>
+    <p class="upload-hint">PDF 或 DOCX，拖曳或點擊上傳</p>
+  </div>
+
+  <div class="nav-hint">Mockup 預覽：<a href="wizard-step2.html">查看 Step 2 →</a></div>
+</div>
+</body>
+</html>
