@@ -19,7 +19,7 @@ describe('Chat API (Career Advisor)', () => {
     expect(sessionId).toBeTruthy()
   })
 
-  it('returns streaming response for valid session', async () => {
+  it('returns SSE streaming response for valid session', async () => {
     const response = await fetch('http://localhost:3000/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -29,18 +29,27 @@ describe('Chat API (Career Advisor)', () => {
       }),
     })
     expect(response.status).toBe(200)
-    expect(response.headers.get('content-type')).toContain('text/plain')
+    expect(response.headers.get('content-type')).toContain('text/event-stream')
 
     const reader = response.body!.getReader()
     const decoder = new TextDecoder()
-    let text = ''
+    let rawText = ''
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      text += decoder.decode(value)
+      rawText += decoder.decode(value)
     }
-    expect(text.length).toBeGreaterThan(10)
-    expect(text).not.toContain('[GAPS_STATUS]')
+
+    // SSE format: events separated by \n\n
+    expect(rawText).toContain('event: text')
+    expect(rawText).toContain('event: done')
+    expect(rawText).not.toContain('[GAPS_STATUS]')
+    expect(rawText).not.toContain('[QUANTIFY_TRIGGER]')
+
+    // Extract visible text from SSE events
+    const textChunks = [...rawText.matchAll(/^event: text\ndata: (.+)$/gm)]
+    const visibleText = textChunks.map(m => JSON.parse(m[1])).join('')
+    expect(visibleText.length).toBeGreaterThan(10)
   })
 
   it('returns 404 for invalid session', async () => {
