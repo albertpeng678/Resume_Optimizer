@@ -194,18 +194,30 @@ localStorage.removeItem('lastSessionId')
 
 ---
 
-### 6. UAT 測試
+### 6. UAT Agent 自動化測試
 
-使用真實履歷 `彭敬鈞履歷.pdf` 作為 UAT 測試素材。
+所有改動完成後，派一個 UAT Agent 對 localhost:3000 進行嚴苛的自動化測試，素材使用 `彭敬鈞履歷.pdf`。
 
-**測試場景：**
-1. 上傳 PDF → 確認解析正確
-2. Persona 推薦 → 確認回傳相關職位
-3. 建立 session → 確認 AI 第一則訊息有「N 個主題」格式
-4. 回答 2-3 輪 → 確認 `[QUANTIFY_TRIGGER]` 被觸發
-5. 開啟量化 modal → 確認 Round 1 有範例答案
-6. 手動點擊「量化數字」按鈕 → 確認 modal 正確開啟
-7. 完成訪談 → 觸發 mapping agent → 下載 DOCX
+**UAT Agent 職責：**
+- 透過 API 呼叫模擬完整使用者流程
+- 針對每個改動點驗證行為是否符合規格
+- 回報所有發現的問題，實作 subagent 依回饋進行修正
+- 修正後 UAT Agent 再次執行驗證（循環直到通過）
+
+**測試情境（嚴苛）：**
+
+| 情境 | 驗證重點 |
+|------|---------|
+| 正常流程 | 上傳 PDF → persona 推薦 → 建立 session → 訪談 → 量化 → 生成履歷 → 下載 DOCX |
+| AI 首訊格式 | 第一則訊息必須包含「N 個主題清單」且 N 符合 persona.interview_gaps 數量 |
+| 問題引導性 | AI 問題必須引用履歷原文，不得泛問（用 GPT 評分判斷） |
+| QUANTIFY_TRIGGER | 給出含有可量化成就的回答後，response 中必須出現 [QUANTIFY_TRIGGER] |
+| 量化 Round 1 | 第一輪問題必須包含具體範例數字（如「83%」或「20 分鐘」） |
+| 量化完整 5 輪 | 模擬完整 5 輪對話，確認 [QUANTIFY_RESULT] 或 [QUANTIFY_FAILED] 正確輸出 |
+| Session 續接 | 中途離開再透過 sessionId 重新進入，確認歷史訊息完整 |
+| SSE 串流格式 | 確認 chat API 回應為 SSE 格式，每個 chunk 獨立傳送（非 buffer） |
+| Mapping + DOCX | 完成訪談後呼叫 /api/map，確認 DOCX 可下載且格式正確 |
+| 錯誤情境 | 無效 sessionId、空白履歷、不支援的文件格式 → 確認正確 4xx 回應 |
 
 ---
 
@@ -227,19 +239,15 @@ localStorage.removeItem('lastSessionId')
 ## 驗證方式
 
 ```bash
-# 1. 啟動開發伺服器
-npm run dev
-
-# 2. 手動 UAT（用真實 PDF）
-# - 上傳彭敬鈞履歷.pdf
-# - 確認 AI 第一則訊息有「N 個主題清單」
-# - 確認訊息有打字機效果
-# - 確認頁面自動捲動
-# - 確認 markdown 正確渲染
-# - 觸發量化 modal，確認有範例答案
-# - 關閉頁籤再回首頁，確認「繼續上次訪談」出現
-
-# 3. 跑現有測試確認沒有 regression
+# 1. 跑現有測試確認沒有 regression
 npm run test:unit
 npm run test:sit
+
+# 2. 啟動開發伺服器
+npm run dev
+
+# 3. 派 UAT Agent 執行自動化測試（用彭敬鈞履歷.pdf）
+# UAT Agent 呼叫 localhost:3000 API，執行上方 10 個測試情境
+# 回報所有問題 → 實作 subagent 修正 → UAT Agent 再次驗證
+# 循環直到所有情境通過
 ```
