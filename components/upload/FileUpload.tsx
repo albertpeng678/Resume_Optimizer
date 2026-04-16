@@ -1,6 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
-import { Upload, FileText, Loader2 } from 'lucide-react'
+import { Upload, FileText, Loader2, AlertCircle } from 'lucide-react'
 
 interface FileUploadProps {
   onUploadComplete: (markdown: string) => void
@@ -63,7 +63,14 @@ export function FileUpload({ onUploadComplete }: FileUploadProps) {
           <Loader2 className="w-10 h-10 animate-spin" />
           <p className="font-medium">正在解析 {fileName}...</p>
         </div>
-      ) : fileName && !error ? (
+      ) : error ? (
+        <div className="flex flex-col items-center gap-4">
+          <AlertCircle className="w-10 h-10 text-red-500" />
+          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-ink/60">請重新上傳你的履歷（PDF 或 DOCX）</p>
+          <span className="text-xs text-primary font-medium">點擊此處重新選擇檔案</span>
+        </div>
+      ) : fileName ? (
         <div className="flex flex-col items-center gap-3 text-primary">
           <FileText className="w-10 h-10" />
           <p className="font-medium">{fileName} 解析完成</p>
@@ -74,9 +81,6 @@ export function FileUpload({ onUploadComplete }: FileUploadProps) {
           <p className="text-lg font-medium text-ink">上傳你的履歷</p>
           <p className="text-sm">PDF 或 DOCX，拖曳或點擊上傳</p>
         </div>
-      )}
-      {error && (
-        <p className="mt-3 text-red-500 text-sm">{error}</p>
       )}
     </div>
   )

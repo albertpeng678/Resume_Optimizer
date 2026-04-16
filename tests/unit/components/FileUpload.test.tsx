@@ -39,5 +39,7 @@ describe('FileUpload', () => {
       expect(screen.getByText('Invalid file')).toBeDefined()
     })
     expect(onComplete).not.toHaveBeenCalled()
+    expect(screen.getByText('請重新上傳你的履歷（PDF 或 DOCX）')).toBeDefined()
+    expect(screen.getByText('點擊此處重新選擇檔案')).toBeDefined()
   })
 })
