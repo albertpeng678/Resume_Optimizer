@@ -16,7 +16,9 @@
 
 ### Step 1：上傳履歷
 - 拖曳或點擊上傳 PDF/DOCX
-- 呼叫 `POST /api/upload`，取得 `markdown`
+- 呼叫 `POST /api/upload`，解析檔案並用 LLM（gpt-4o-mini）驗證是否為履歷
+- 非履歷內容（成績單、論文等）立即回傳 422 錯誤，顯示中文提示
+- 驗證通過後取得 `markdown`
 - 自動呼叫 `POST /api/persona`，取得 AI 推薦的 3 個 career 類別
 - 上傳完成後自動進入 Step 2
 

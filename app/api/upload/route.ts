@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import OpenAI from 'openai'
 import { parsePdfToMarkdown } from '@/lib/parsers/pdf'
 import { parseDocxToMarkdown } from '@/lib/parsers/docx-parser'
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,6 +39,39 @@ export async function POST(req: NextRequest) {
         { error: 'Could not extract meaningful content from file' },
         { status: 422 }
       )
+    }
+
+    // Validate content is a resume using LLM
+    const validation = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `你是一個文件分類器。判斷以下文件內容是否為「履歷 / CV / Resume」。
+履歷通常包含：個人資訊、工作經歷、學歷、技能等。
+非履歷的例子：成績單、論文、報告、合約、信件等。
+
+請以 JSON 格式回應：
+{ "isResume": true 或 false, "reason": "一句話說明判斷理由" }`,
+        },
+        {
+          role: 'user',
+          content: markdown.slice(0, 1500),
+        },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0,
+    })
+
+    const validationContent = validation.choices[0].message.content
+    if (validationContent) {
+      const result = JSON.parse(validationContent)
+      if (!result.isResume) {
+        return NextResponse.json(
+          { error: `這不像是一份履歷。${result.reason || '請上傳你的履歷文件。'}` },
+          { status: 422 }
+        )
+      }
     }
 
     return NextResponse.json({ markdown })
