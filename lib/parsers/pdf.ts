@@ -41,7 +41,9 @@ export async function parsePdfToMarkdown(buffer: Buffer): Promise<string> {
         reject(new Error('markitdown: failed to convert PDF'))
         return
       }
-      const text = Buffer.concat(chunks).toString('utf-8')
+      const raw = Buffer.concat(chunks).toString('utf-8')
+      // Remove null bytes and other control characters that Postgres rejects
+      const text = raw.replace(/\u0000/g, '').replace(/[\x01-\x08\x0B\x0C\x0E-\x1F]/g, '')
       const lines = text.split('\n')
       const cleaned = lines
         .map((line) => line.trim())
