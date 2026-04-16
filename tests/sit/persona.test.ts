@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getAllPersonas } from '@/lib/persona/templates'
+import { getCareerList } from '@/lib/persona/templates'
 
 const SAMPLE_RESUME = `
 张三 | Product Manager
@@ -8,10 +8,10 @@ const SAMPLE_RESUME = `
 負責 PRD 撰寫、用戶研究、A/B 測試設計。
 `
 
-const VALID_IDS = new Set(getAllPersonas().map((p) => p.id))
+const VALID_CAREERS = new Set(getCareerList().map((c) => c.id))
 
 describe('Persona API', () => {
-  it('returns 2-3 recommendations with valid id and reason', async () => {
+  it('returns 2-3 recommendations with valid career and reason', async () => {
     const response = await fetch('http://localhost:3000/api/persona', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -23,9 +23,10 @@ describe('Persona API', () => {
     expect(data.recommendations.length).toBeGreaterThanOrEqual(2)
     expect(data.recommendations.length).toBeLessThanOrEqual(3)
     for (const rec of data.recommendations) {
-      expect(rec).toHaveProperty('id')
+      expect(rec).toHaveProperty('career')
+      expect(rec).toHaveProperty('title')
       expect(rec).toHaveProperty('reason')
-      expect(VALID_IDS.has(rec.id)).toBe(true)
+      expect(VALID_CAREERS.has(rec.career)).toBe(true)
     }
   })
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { getAllPersonas } from '@/lib/persona/templates'
+import { getCareerList } from '@/lib/persona/templates'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -12,10 +12,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'resumeMarkdown is required' }, { status: 400 })
     }
 
-    const personas = getAllPersonas()
-    const validIds = new Set(personas.map((p) => p.id))
-    const personaList = personas
-      .map((p) => `- id: "${p.id}", title: "${p.title}"`)
+    const careers = getCareerList()
+    const validCareers = new Set(careers.map((c) => c.id))
+    const careerList = careers
+      .map((c) => `- career: "${c.id}", title: "${c.title}"`)
       .join('\n')
 
     const response = await openai.chat.completions.create({
@@ -23,15 +23,15 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `你是一位資深職涯顧問。根據用戶的履歷內容，從以下 Persona 中推薦最適合的 2-3 個，並給出簡短理由（一句話）。
+          content: `你是一位資深職涯顧問。根據用戶的履歷內容，從以下職位類別中推薦最適合的 3 個，並給出簡短理由（一句話）。
 
-可選 Persona：
-${personaList}
+可選職位類別：
+${careerList}
 
 請以 JSON 格式回應：
 {
   "recommendations": [
-    { "id": "persona-id", "reason": "一句話說明為什麼推薦" }
+    { "career": "career-id", "title": "職位中文名", "reason": "一句話說明為什麼推薦" }
   ]
 }`,
         },
@@ -49,15 +49,22 @@ ${personaList}
 
     const parsed = JSON.parse(content)
 
-    // Validate response shape and filter to known persona IDs
     if (!Array.isArray(parsed.recommendations)) {
       throw new Error('Invalid OpenAI response: missing recommendations array')
     }
     parsed.recommendations = parsed.recommendations
       .filter(
         (r: any) =>
-          r && typeof r.id === 'string' && typeof r.reason === 'string' && validIds.has(r.id)
+          r &&
+          typeof r.career === 'string' &&
+          typeof r.reason === 'string' &&
+          validCareers.has(r.career)
       )
+      .map((r: any) => ({
+        career: r.career,
+        title: careers.find((c) => c.id === r.career)?.title ?? r.title,
+        reason: r.reason,
+      }))
       .slice(0, 3)
 
     return NextResponse.json(parsed)
