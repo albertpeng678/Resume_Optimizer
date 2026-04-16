@@ -8,13 +8,14 @@ export async function POST(req: NextRequest) {
   try {
     const { resumeMarkdown } = await req.json()
 
-    if (!resumeMarkdown || typeof resumeMarkdown !== 'string') {
+    if (!resumeMarkdown || typeof resumeMarkdown !== 'string' || !resumeMarkdown.trim()) {
       return NextResponse.json({ error: 'resumeMarkdown is required' }, { status: 400 })
     }
 
     const personas = getAllPersonas()
+    const validIds = new Set(personas.map((p) => p.id))
     const personaList = personas
-      .map(p => `- id: "${p.id}", title: "${p.title}", years: ${p.years}`)
+      .map((p) => `- id: "${p.id}", title: "${p.title}"`)
       .join('\n')
 
     const response = await openai.chat.completions.create({
@@ -47,6 +48,18 @@ ${personaList}
     if (!content) throw new Error('Empty response from OpenAI')
 
     const parsed = JSON.parse(content)
+
+    // Validate response shape and filter to known persona IDs
+    if (!Array.isArray(parsed.recommendations)) {
+      throw new Error('Invalid OpenAI response: missing recommendations array')
+    }
+    parsed.recommendations = parsed.recommendations
+      .filter(
+        (r: any) =>
+          r && typeof r.id === 'string' && typeof r.reason === 'string' && validIds.has(r.id)
+      )
+      .slice(0, 3)
+
     return NextResponse.json(parsed)
   } catch (error) {
     console.error('Persona recommendation error:', error)

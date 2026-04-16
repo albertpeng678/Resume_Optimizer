@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { getAllPersonas } from '@/lib/persona/templates'
 
 const SAMPLE_RESUME = `
 张三 | Product Manager
@@ -7,8 +8,10 @@ const SAMPLE_RESUME = `
 負責 PRD 撰寫、用戶研究、A/B 測試設計。
 `
 
+const VALID_IDS = new Set(getAllPersonas().map((p) => p.id))
+
 describe('Persona API', () => {
-  it('returns 2-3 recommendations with id and reason', async () => {
+  it('returns 2-3 recommendations with valid id and reason', async () => {
     const response = await fetch('http://localhost:3000/api/persona', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -17,10 +20,13 @@ describe('Persona API', () => {
     expect(response.status).toBe(200)
     const data = await response.json()
     expect(Array.isArray(data.recommendations)).toBe(true)
-    expect(data.recommendations.length).toBeGreaterThanOrEqual(1)
+    expect(data.recommendations.length).toBeGreaterThanOrEqual(2)
     expect(data.recommendations.length).toBeLessThanOrEqual(3)
-    expect(data.recommendations[0]).toHaveProperty('id')
-    expect(data.recommendations[0]).toHaveProperty('reason')
+    for (const rec of data.recommendations) {
+      expect(rec).toHaveProperty('id')
+      expect(rec).toHaveProperty('reason')
+      expect(VALID_IDS.has(rec.id)).toBe(true)
+    }
   })
 
   it('returns 400 when resumeMarkdown is missing', async () => {
@@ -28,6 +34,15 @@ describe('Persona API', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
+    })
+    expect(response.status).toBe(400)
+  })
+
+  it('returns 400 when resumeMarkdown is whitespace only', async () => {
+    const response = await fetch('http://localhost:3000/api/persona', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resumeMarkdown: '   ' }),
     })
     expect(response.status).toBe(400)
   })
