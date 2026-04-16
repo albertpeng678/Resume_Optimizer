@@ -1,0 +1,49 @@
+{
+  "id": "data-analyst-senior",
+  "title": "資深數據分析師",
+  "years": "5-10年",
+  "core_skills": [
+    "SQL",
+    "Python",
+    "Tableau",
+    "數據分析",
+    "資料視覺化",
+    "統計分析",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "SQL",
+    "Python",
+    "Tableau",
+    "Power BI",
+    "數據分析",
+    "資料視覺化",
+    "A/B Testing",
+    "機器學習",
+    "商業智慧",
+    "資料建模",
+    "ETL",
+    "Google Analytics",
+    "數據驅動",
+    "資料科學",
+    "統計"
+  ],
+  "responsibilities": [
+    "分析用戶行為和市場趨勢，提供商業洞察",
+    "設計和執行A/B測試，驗證產品假設",
+    "開發和維護數據儀表板和報表",
+    "與跨部門團隊合作，推動數據驅動的決策",
+    "優化數據處理流程，確保數據質量",
+    "提供數據支持以改善產品和業務決策"
+  ],
+  "interview_gaps": [
+    "data_modeling",
+    "statistical_analysis",
+    "business_insight",
+    "visualization",
+    "data_storytelling",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "project_scale"
+  ]
+}

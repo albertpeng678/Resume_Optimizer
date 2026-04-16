@@ -1,0 +1,49 @@
+{
+  "id": "solutions-architect-mid",
+  "title": "解決方案架構師",
+  "years": "3-5年",
+  "core_skills": [
+    "系統架構設計",
+    "雲端服務",
+    "技術諮詢",
+    "跨團隊協作",
+    "技術文檔撰寫",
+    "自動化部署",
+    "安全性管理"
+  ],
+  "keywords": [
+    "AWS",
+    "Azure",
+    "GCP",
+    "Docker",
+    "Kubernetes",
+    "CI/CD",
+    "微服務架構",
+    "Python",
+    "Linux",
+    "Git",
+    "API設計",
+    "資料庫",
+    "網路安全",
+    "AI",
+    "技術顧問"
+  ],
+  "responsibilities": [
+    "設計和實施高可用性和可擴展的系統架構",
+    "提供技術諮詢和解決方案設計",
+    "協助開發團隊解決技術問題",
+    "推動自動化部署和CI/CD流程",
+    "管理和優化雲端資源",
+    "與客戶和內部團隊合作，確保需求實現"
+  ],
+  "interview_gaps": [
+    "solution_design",
+    "technical_consulting",
+    "integration_strategy",
+    "client_communication",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

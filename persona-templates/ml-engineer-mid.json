@@ -1,0 +1,48 @@
+{
+  "id": "ml-engineer-mid",
+  "title": "機器學習工程師",
+  "years": "3-5年",
+  "core_skills": [
+    "Python",
+    "PyTorch",
+    "TensorFlow",
+    "NLP",
+    "MLOps",
+    "深度學習",
+    "機器學習"
+  ],
+  "keywords": [
+    "Python",
+    "PyTorch",
+    "TensorFlow",
+    "LLM",
+    "NLP",
+    "MLOps",
+    "Machine Learning",
+    "深度學習",
+    "AI",
+    "模型部署",
+    "資料處理",
+    "雲端",
+    "Git",
+    "Docker",
+    "Transformer"
+  ],
+  "responsibilities": [
+    "設計、開發和部署機器學習模型",
+    "優化和調整模型性能",
+    "建立和維護機器學習管道",
+    "與跨職能團隊合作以實現業務目標",
+    "進行技術研究和實驗以提升模型能力"
+  ],
+  "interview_gaps": [
+    "model_development",
+    "data_pipeline",
+    "model_deployment",
+    "experiment_design",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

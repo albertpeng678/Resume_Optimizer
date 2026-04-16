@@ -1,0 +1,49 @@
+{
+  "id": "data-analyst-mid",
+  "title": "數據分析師",
+  "years": "3-5年",
+  "core_skills": [
+    "SQL",
+    "Python",
+    "Tableau",
+    "數據分析",
+    "數據視覺化",
+    "統計分析",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "SQL",
+    "Python",
+    "Tableau",
+    "Power BI",
+    "數據分析",
+    "資料庫",
+    "A/B Testing",
+    "數據視覺化",
+    "商業智慧",
+    "ETL",
+    "統計學",
+    "機器學習",
+    "資料建模",
+    "數據驅動",
+    "跨部門合作"
+  ],
+  "responsibilities": [
+    "分析用戶行為和市場趨勢，提供商業洞察",
+    "設計和執行A/B測試，驗證假設",
+    "開發和維護數據儀表板和報表",
+    "與產品、行銷和運營團隊合作，推動數據驅動的決策",
+    "監控數據質量，改進數據分析流程",
+    "撰寫分析報告，向非技術部門解釋結果"
+  ],
+  "interview_gaps": [
+    "data_modeling",
+    "statistical_analysis",
+    "business_insight",
+    "visualization",
+    "data_storytelling",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "project_scale"
+  ]
+}

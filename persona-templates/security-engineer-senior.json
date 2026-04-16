@@ -1,0 +1,47 @@
+{
+  "id": "security-engineer-senior",
+  "title": "資深資安工程師",
+  "years": "5-10年",
+  "core_skills": [
+    "滲透測試",
+    "弱點掃描",
+    "資安事件應變",
+    "資安政策與合規",
+    "網路與系統安全"
+  ],
+  "keywords": [
+    "滲透測試",
+    "弱點掃描",
+    "資安事件",
+    "資安政策",
+    "合規",
+    "網路安全",
+    "系統安全",
+    "OWASP",
+    "Burp Suite",
+    "Metasploit",
+    "SQLmap",
+    "Linux",
+    "Windows",
+    "AWS",
+    "Azure"
+  ],
+  "responsibilities": [
+    "執行滲透測試與弱點掃描",
+    "管理與維護資安系統與設備",
+    "資安事件監控、分析與應變",
+    "制定與維持資安政策與合規性",
+    "與跨部門協作進行資安風險評估",
+    "撰寫資安報告與改善建議"
+  ],
+  "interview_gaps": [
+    "threat_modeling",
+    "security_architecture",
+    "incident_response",
+    "compliance",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

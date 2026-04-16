@@ -1,0 +1,49 @@
+{
+  "id": "solutions-architect-senior",
+  "title": "解決方案架構師",
+  "years": "5-10年",
+  "core_skills": [
+    "雲端架構設計",
+    "技術溝通",
+    "系統整合",
+    "資料庫管理",
+    "AI應用",
+    "網路安全",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "AWS",
+    "Azure",
+    "GCP",
+    "Kubernetes",
+    "Docker",
+    "CI/CD",
+    "API整合",
+    "資料庫",
+    "雲端解決方案",
+    "技術架構",
+    "PoC",
+    "技術顧問",
+    "IT基礎架構",
+    "安全性",
+    "技術提案"
+  ],
+  "responsibilities": [
+    "設計和開發雲端解決方案",
+    "與客戶溝通技術需求",
+    "協助技術導入和整合",
+    "提供技術支持和顧問服務",
+    "撰寫技術文件和提案",
+    "跨部門協作推動專案"
+  ],
+  "interview_gaps": [
+    "solution_design",
+    "technical_consulting",
+    "integration_strategy",
+    "client_communication",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

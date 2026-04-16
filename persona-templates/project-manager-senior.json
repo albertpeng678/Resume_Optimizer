@@ -1,0 +1,49 @@
+{
+  "id": "project-manager-senior",
+  "title": "專案經理",
+  "years": "5-10年",
+  "core_skills": [
+    "專案規劃與執行",
+    "跨部門溝通與協作",
+    "風險管理",
+    "需求分析與管理",
+    "時程控管",
+    "專案文件撰寫",
+    "資源分配"
+  ],
+  "keywords": [
+    "專案管理",
+    "需求訪談",
+    "風險控管",
+    "跨部門協作",
+    "時程規劃",
+    "進度追蹤",
+    "資源調度",
+    "驗收流程",
+    "專案文件",
+    "Agile",
+    "Scrum",
+    "Jira",
+    "Notion",
+    "Gantt Chart",
+    "WBS"
+  ],
+  "responsibilities": [
+    "規劃、執行並監控專案進度",
+    "跨部門溝通協調，整合內外部資源",
+    "管理專案風險，制定應對策略",
+    "撰寫並維護專案相關文件",
+    "主持專案會議並報告進度",
+    "確保專案如期且高品質完成"
+  ],
+  "interview_gaps": [
+    "risk_management",
+    "stakeholder_management",
+    "resource_planning",
+    "methodology",
+    "project_scale",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "product-manager-junior",
+  "title": "產品經理",
+  "years": "1-3年",
+  "core_skills": [
+    "需求分析",
+    "專案管理",
+    "跨部門協作",
+    "數據分析",
+    "用戶研究"
+  ],
+  "keywords": [
+    "產品路線圖",
+    "PRD",
+    "用戶故事",
+    "敏捷開發",
+    "市場分析",
+    "競品分析",
+    "數據驅動",
+    "跨部門協作",
+    "用戶體驗",
+    "產品優化",
+    "產品開發",
+    "需求管理",
+    "產品設計",
+    "產品策略",
+    "產品上線"
+  ],
+  "responsibilities": [
+    "負責產品需求分析與優先級排序",
+    "跨部門協作推進產品開發與上線",
+    "撰寫並管理產品需求文件與規格",
+    "追蹤產品數據與用戶反饋進行優化",
+    "制定產品路線圖並推動產品策略",
+    "參與市場與競品分析以識別新機會"
+  ],
+  "interview_gaps": [
+    "product_planning",
+    "data_analysis",
+    "cross_team_collaboration",
+    "user_research",
+    "project_scale",
+    "technical_background",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

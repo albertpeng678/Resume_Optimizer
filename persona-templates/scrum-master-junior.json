@@ -1,0 +1,48 @@
+{
+  "id": "scrum-master-junior",
+  "title": "技術專案經理 / Scrum Master",
+  "years": "1-3年",
+  "core_skills": [
+    "Scrum",
+    "專案管理",
+    "Agile",
+    "跨部門協作",
+    "風險管理",
+    "溝通能力"
+  ],
+  "keywords": [
+    "Scrum",
+    "Agile",
+    "專案管理",
+    "JIRA",
+    "跨部門協作",
+    "風險管理",
+    "產品生命週期",
+    "專案時間控管",
+    "專案成本控管",
+    "專案規劃",
+    "專案溝通",
+    "專案執行",
+    "專案範疇管理",
+    "專案品質管理",
+    "專案進度控管"
+  ],
+  "responsibilities": [
+    "策劃、執行和監控專案進度",
+    "協助組織和管理敏捷開發流程",
+    "管理專案風險、問題與變更",
+    "撰寫並管理專案相關文件",
+    "支持跨部門溝通",
+    "參與Scrum會議"
+  ],
+  "interview_gaps": [
+    "agile_methodology",
+    "team_facilitation",
+    "process_improvement",
+    "conflict_resolution",
+    "cross_team_collaboration",
+    "project_scale",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

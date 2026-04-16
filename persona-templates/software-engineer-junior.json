@@ -1,0 +1,46 @@
+{
+  "id": "software-engineer-junior",
+  "title": "軟體工程師",
+  "years": "1-3年",
+  "core_skills": [
+    "C/C++",
+    "Python",
+    "Linux",
+    "軟體程式設計",
+    "系統架構規劃"
+  ],
+  "keywords": [
+    "C#",
+    "Git",
+    "Docker",
+    "機器學習",
+    "資料庫",
+    "API",
+    "敏捷開發",
+    "雲端平台",
+    "版本控制",
+    "CI/CD",
+    "SQL",
+    "Java",
+    "Node.js",
+    "系統整合",
+    "專案管理"
+  ],
+  "responsibilities": [
+    "設計與開發軟體解決方案",
+    "與團隊合作推進產品開發",
+    "參與系統架構設計",
+    "進行軟體測試與維護",
+    "與客戶或跨部門溝通需求"
+  ],
+  "interview_gaps": [
+    "system_design",
+    "technical_complexity",
+    "performance_impact",
+    "team_mentoring",
+    "architecture_decisions",
+    "cross_functional_collab",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

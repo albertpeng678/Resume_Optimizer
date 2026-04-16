@@ -1,0 +1,46 @@
+{
+  "id": "solutions-architect-junior",
+  "title": "解決方案架構師",
+  "years": "1-3年",
+  "core_skills": [
+    "雲端架構設計",
+    "技術支持",
+    "跨部門協作",
+    "客戶需求分析",
+    "技術提案撰寫"
+  ],
+  "keywords": [
+    "AWS",
+    "Azure",
+    "Google Cloud",
+    "API整合",
+    "LLM",
+    "資料庫管理",
+    "CI/CD",
+    "IaaS",
+    "PaaS",
+    "Kubernetes",
+    "Docker",
+    "SQL",
+    "技術顧問",
+    "系統架構",
+    "資安"
+  ],
+  "responsibilities": [
+    "設計和開發雲端解決方案",
+    "提供技術支持和諮詢服務",
+    "與客戶溝通需求並制定技術方案",
+    "協助銷售團隊進行技術展示和提案",
+    "跨部門協作以確保項目成功交付"
+  ],
+  "interview_gaps": [
+    "solution_design",
+    "technical_consulting",
+    "integration_strategy",
+    "client_communication",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

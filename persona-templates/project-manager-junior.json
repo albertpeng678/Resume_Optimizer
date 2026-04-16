@@ -1,0 +1,47 @@
+{
+  "id": "project-manager-junior",
+  "title": "專案經理",
+  "years": "1-3年",
+  "core_skills": [
+    "專案規劃與執行",
+    "跨部門溝通協作",
+    "風險管理",
+    "需求分析",
+    "時程控管"
+  ],
+  "keywords": [
+    "專案管理",
+    "需求訪談",
+    "時程規劃",
+    "風險控管",
+    "跨部門協作",
+    "專案文件",
+    "Agile",
+    "Scrum",
+    "Jira",
+    "Notion",
+    "Google Workspace",
+    "客戶溝通",
+    "驗收流程",
+    "資源分配",
+    "進度追蹤"
+  ],
+  "responsibilities": [
+    "規劃、執行並監控專案進度",
+    "跨部門溝通協調，整合內外部資源",
+    "管理專案風險，建立風險登記表",
+    "負責專案文件管理",
+    "主持專案相關會議，定期報告進度",
+    "確保專案如期且高品質完成"
+  ],
+  "interview_gaps": [
+    "risk_management",
+    "stakeholder_management",
+    "resource_planning",
+    "methodology",
+    "project_scale",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

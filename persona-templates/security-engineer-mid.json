@@ -1,0 +1,46 @@
+{
+  "id": "security-engineer-mid",
+  "title": "資安工程師",
+  "years": "3-5年",
+  "core_skills": [
+    "滲透測試",
+    "弱點掃描",
+    "資安事件應變",
+    "網路安全",
+    "資安政策與合規"
+  ],
+  "keywords": [
+    "滲透測試",
+    "弱點掃描",
+    "資安事件",
+    "網路安全",
+    "資安政策",
+    "合規",
+    "Linux",
+    "Windows",
+    "AWS",
+    "GCP",
+    "Azure",
+    "OWASP",
+    "Burp Suite",
+    "SQL Injection",
+    "Cross Site Scripting"
+  ],
+  "responsibilities": [
+    "執行滲透測試和弱點掃描，並提供修補建議",
+    "管理和維護資安系統與設備",
+    "監控和分析資安事件，並進行應變處理",
+    "制定和執行資安政策與合規程序",
+    "協助內部和客戶的資安教育與訓練"
+  ],
+  "interview_gaps": [
+    "threat_modeling",
+    "security_architecture",
+    "incident_response",
+    "compliance",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

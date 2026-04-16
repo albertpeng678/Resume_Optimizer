@@ -1,0 +1,48 @@
+{
+  "id": "technical-support-senior",
+  "title": "技術支援工程師",
+  "years": "5-10年",
+  "core_skills": [
+    "問題解決",
+    "技術支援",
+    "客戶服務",
+    "網路基礎知識",
+    "系統除錯",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "TCP/IP",
+    "VPN",
+    "Firewall",
+    "HTTP",
+    "SSL",
+    "Log分析",
+    "SLA",
+    "資安",
+    "技術文件",
+    "問題排除",
+    "客戶溝通",
+    "知識庫",
+    "網路設定",
+    "技術改善",
+    "跨國協作"
+  ],
+  "responsibilities": [
+    "分析與解決客戶技術問題",
+    "進行問題重現與Log分析",
+    "撰寫技術文件與維護知識庫",
+    "提供客戶技術支援與操作指導",
+    "協助產品測試與版本驗證",
+    "參與跨部門協作與溝通"
+  ],
+  "interview_gaps": [
+    "troubleshooting",
+    "knowledge_management",
+    "escalation_process",
+    "customer_communication",
+    "cross_team_collaboration",
+    "project_scale",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

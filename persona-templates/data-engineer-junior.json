@@ -1,0 +1,48 @@
+{
+  "id": "data-engineer-junior",
+  "title": "資料工程師",
+  "years": "1-3年",
+  "core_skills": [
+    "Python",
+    "SQL",
+    "ETL/ELT",
+    "Data Modeling",
+    "Cloud Platforms",
+    "Data Warehousing"
+  ],
+  "keywords": [
+    "Python",
+    "SQL",
+    "ETL",
+    "Data Pipeline",
+    "BigQuery",
+    "Airflow",
+    "Data Warehouse",
+    "GCP",
+    "AWS",
+    "Data Modeling",
+    "NoSQL",
+    "Git",
+    "Data Quality",
+    "CI/CD",
+    "Data Integration"
+  ],
+  "responsibilities": [
+    "設計並開發數據管道和ETL/ELT流程",
+    "維護和優化數據基礎設施和數據倉庫",
+    "與跨部門團隊協作以提供數據支持",
+    "確保數據的完整性和質量",
+    "參與數據建模和查詢優化",
+    "實施和維護數據監控系統"
+  ],
+  "interview_gaps": [
+    "pipeline_architecture",
+    "data_modeling",
+    "scalability",
+    "data_quality",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

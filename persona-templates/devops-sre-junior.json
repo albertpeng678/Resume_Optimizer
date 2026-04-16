@@ -1,0 +1,49 @@
+{
+  "id": "devops-sre-junior",
+  "title": "DevOps / SRE 工程師",
+  "years": "1-3年",
+  "core_skills": [
+    "Linux系統管理",
+    "CI/CD流程",
+    "容器技術",
+    "雲端平台",
+    "自動化工具",
+    "監控與告警",
+    "基礎架構設計"
+  ],
+  "keywords": [
+    "DevOps",
+    "SRE",
+    "CI/CD",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "GCP",
+    "Terraform",
+    "Ansible",
+    "Jenkins",
+    "GitLab",
+    "Prometheus",
+    "Grafana",
+    "Python",
+    "Bash"
+  ],
+  "responsibilities": [
+    "維護和優化CI/CD流水線",
+    "管理和運營容器化環境",
+    "支持基礎設施運營和自動化",
+    "實施監控和告警系統",
+    "協助開發團隊優化部署流程",
+    "處理基礎設施和部署相關問題"
+  ],
+  "interview_gaps": [
+    "infrastructure_design",
+    "monitoring_strategy",
+    "incident_management",
+    "automation",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

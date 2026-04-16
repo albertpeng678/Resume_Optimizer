@@ -1,0 +1,49 @@
+{
+  "id": "data-analyst-junior",
+  "title": "數據分析師",
+  "years": "1-3年",
+  "core_skills": [
+    "SQL",
+    "Python",
+    "數據分析",
+    "資料視覺化",
+    "統計分析",
+    "A/B測試",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "SQL",
+    "Python",
+    "Tableau",
+    "Power BI",
+    "數據分析",
+    "資料視覺化",
+    "統計分析",
+    "A/B Testing",
+    "資料清理",
+    "商業智慧",
+    "ETL",
+    "數據驅動",
+    "Google Analytics",
+    "資料建模",
+    "自動化流程"
+  ],
+  "responsibilities": [
+    "分析用戶行為和市場趨勢",
+    "設計和優化數據儀表板",
+    "進行數據清理和處理",
+    "協助業務決策和產品優化",
+    "跨部門協作提供數據支持",
+    "設計和執行A/B測試"
+  ],
+  "interview_gaps": [
+    "data_modeling",
+    "statistical_analysis",
+    "business_insight",
+    "visualization",
+    "data_storytelling",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "project_scale"
+  ]
+}

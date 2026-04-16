@@ -1,0 +1,49 @@
+{
+  "id": "data-engineer-senior",
+  "title": "資深資料工程師",
+  "years": "5-10年",
+  "core_skills": [
+    "Python",
+    "SQL",
+    "ETL/ELT",
+    "Data Modeling",
+    "Cloud Platforms",
+    "Data Warehousing",
+    "Big Data Tools"
+  ],
+  "keywords": [
+    "Python",
+    "SQL",
+    "ETL",
+    "Data Pipeline",
+    "BigQuery",
+    "AWS",
+    "GCP",
+    "Azure",
+    "Data Modeling",
+    "Data Warehouse",
+    "Airflow",
+    "Kafka",
+    "Spark",
+    "NoSQL",
+    "Data Governance"
+  ],
+  "responsibilities": [
+    "設計並實作可擴展的資料管道和基礎設施",
+    "開發和優化實時資料流系統和儀表板",
+    "確保資料的品質、完整性、安全性和治理",
+    "與數據科學家、分析師和其他工程師協作提供數據解決方案",
+    "監控和提升資料基礎設施的效能和擴展性",
+    "指導初階工程師並推廣最佳實踐"
+  ],
+  "interview_gaps": [
+    "pipeline_architecture",
+    "data_modeling",
+    "scalability",
+    "data_quality",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

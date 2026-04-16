@@ -1,0 +1,48 @@
+{
+  "id": "ui-ux-designer-senior",
+  "title": "資深UI/UX設計師",
+  "years": "5-10年",
+  "core_skills": [
+    "Figma",
+    "Wireframe",
+    "Prototype",
+    "使用者介面設計",
+    "視覺設計",
+    "溝通協作",
+    "使用者體驗設計"
+  ],
+  "keywords": [
+    "Figma",
+    "UI/UX",
+    "Prototype",
+    "Wireframe",
+    "使用者介面",
+    "視覺設計",
+    "溝通能力",
+    "設計系統",
+    "RWD",
+    "HTML/CSS",
+    "Adobe Photoshop",
+    "Illustrator",
+    "Mockup",
+    "Design System",
+    "跨部門合作"
+  ],
+  "responsibilities": [
+    "參與產品設計討論，創建Wireframe和mockup，確保設計與產品功能的一致性",
+    "與工程師和其他團隊成員合作，確保設計實作的完整性和一致性",
+    "持續優化產品的UI/UX設計，提升使用者體驗",
+    "建立與維護設計系統與UI元件庫",
+    "進行競品分析和市場趨勢研究，提出設計優化建議"
+  ],
+  "interview_gaps": [
+    "design_process",
+    "user_testing",
+    "design_systems",
+    "accessibility",
+    "cross_team_collaboration",
+    "project_scale",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

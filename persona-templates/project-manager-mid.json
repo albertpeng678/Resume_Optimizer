@@ -1,0 +1,49 @@
+{
+  "id": "project-manager-mid",
+  "title": "專案經理",
+  "years": "3-5年",
+  "core_skills": [
+    "專案規劃與執行",
+    "跨部門溝通協作",
+    "風險管理",
+    "需求分析與管理",
+    "專案進度控管",
+    "資源分配",
+    "文件撰寫與報告"
+  ],
+  "keywords": [
+    "專案管理",
+    "Agile",
+    "Scrum",
+    "Jira",
+    "需求分析",
+    "風險控管",
+    "跨部門協作",
+    "進度追蹤",
+    "資源分配",
+    "Notion",
+    "Google Workspace",
+    "Gantt Chart",
+    "WBS",
+    "客戶溝通",
+    "驗收流程"
+  ],
+  "responsibilities": [
+    "獨立負責專案的規劃、執行與交付管理",
+    "與客戶進行需求訪談、規格確認與期程協商",
+    "制定專案時程並追蹤各階段交付進度",
+    "主持或參與專案內外部會議，主導議題推進與決議產出",
+    "管理專案風險，建立風險登記表並主動提出應對策略",
+    "負責專案文件管理與驗收流程"
+  ],
+  "interview_gaps": [
+    "risk_management",
+    "stakeholder_management",
+    "resource_planning",
+    "methodology",
+    "project_scale",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

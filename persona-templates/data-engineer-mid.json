@@ -1,0 +1,48 @@
+{
+  "id": "data-engineer-mid",
+  "title": "資料工程師",
+  "years": "3-5年",
+  "core_skills": [
+    "Python",
+    "SQL",
+    "ETL/ELT",
+    "Data Modeling",
+    "Cloud Platforms",
+    "Data Warehousing"
+  ],
+  "keywords": [
+    "Python",
+    "SQL",
+    "ETL",
+    "Data Pipeline",
+    "BigQuery",
+    "AWS",
+    "GCP",
+    "Azure",
+    "Data Modeling",
+    "Data Warehouse",
+    "Airflow",
+    "Data Quality",
+    "Streaming",
+    "NoSQL",
+    "Git"
+  ],
+  "responsibilities": [
+    "設計和開發可擴展的數據管道和基礎設施",
+    "維護和優化數據倉儲和數據模型",
+    "與數據科學家和分析師合作，提供數據支持",
+    "確保數據的質量、完整性和安全性",
+    "協作推動業務驅動的數據解決方案",
+    "監控和提升數據基礎設施的性能和可擴展性"
+  ],
+  "interview_gaps": [
+    "pipeline_architecture",
+    "data_modeling",
+    "scalability",
+    "data_quality",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

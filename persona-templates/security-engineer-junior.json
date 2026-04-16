@@ -1,0 +1,46 @@
+{
+  "id": "security-engineer-junior",
+  "title": "資安工程師",
+  "years": "1-3年",
+  "core_skills": [
+    "滲透測試",
+    "弱點掃描",
+    "資安事件應變",
+    "網路安全",
+    "資安政策與合規"
+  ],
+  "keywords": [
+    "資安",
+    "滲透測試",
+    "弱點掃描",
+    "網路安全",
+    "OWASP",
+    "ISO 27001",
+    "防火牆",
+    "雲端",
+    "Linux",
+    "Windows",
+    "TCP/IP",
+    "SQL Injection",
+    "XSS",
+    "Burp Suite",
+    "Metasploit"
+  ],
+  "responsibilities": [
+    "執行滲透測試與弱點掃描",
+    "維護資安系統與設備",
+    "監控與分析資安事件",
+    "撰寫資安報告與改善建議",
+    "協助資安政策與合規性維護"
+  ],
+  "interview_gaps": [
+    "threat_modeling",
+    "security_architecture",
+    "incident_response",
+    "compliance",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

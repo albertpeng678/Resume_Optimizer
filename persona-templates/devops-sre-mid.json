@@ -1,0 +1,47 @@
+{
+  "id": "devops-sre-mid",
+  "title": "DevOps / SRE 工程師",
+  "years": "3-5年",
+  "core_skills": [
+    "Linux 系統管理",
+    "CI/CD 流程",
+    "容器化技術",
+    "雲端平台操作",
+    "基礎設施自動化"
+  ],
+  "keywords": [
+    "DevOps",
+    "SRE",
+    "CI/CD",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "GCP",
+    "Terraform",
+    "Ansible",
+    "Python",
+    "Bash",
+    "Git",
+    "Jenkins",
+    "Prometheus",
+    "Grafana"
+  ],
+  "responsibilities": [
+    "設計和維護 CI/CD 管道以支持自動化構建、測試和部署",
+    "管理和運營可擴展、高可用性和容錯的系統",
+    "使用基礎設施即代碼工具進行基礎設施自動化",
+    "監控和優化系統性能，並進行故障排除",
+    "協助開發團隊改善開發和部署流程",
+    "管理和維護雲端環境及相關服務"
+  ],
+  "interview_gaps": [
+    "infrastructure_design",
+    "monitoring_strategy",
+    "incident_management",
+    "automation",
+    "system_design",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "software-engineer-senior",
+  "title": "資深軟體工程師",
+  "years": "5-10年",
+  "core_skills": [
+    "C/C++",
+    "Python",
+    "Linux",
+    "軟體架構設計",
+    "版本控制（Git）",
+    "資料庫管理",
+    "專案管理"
+  ],
+  "keywords": [
+    "C/C++",
+    "Python",
+    "Linux",
+    "Git",
+    "軟體架構",
+    "資料庫",
+    "專案管理",
+    "機器學習",
+    "深度學習",
+    "AI",
+    "微服務",
+    "CI/CD",
+    "API",
+    "雲端平台",
+    "敏捷開發"
+  ],
+  "responsibilities": [
+    "設計和開發高品質軟體解決方案",
+    "與跨部門團隊合作推動產品發展",
+    "進行系統架構規劃與技術方案討論",
+    "參與並推動專案管理流程",
+    "持續優化產品效能與使用者體驗"
+  ],
+  "interview_gaps": [
+    "system_design",
+    "technical_complexity",
+    "performance_impact",
+    "team_mentoring",
+    "architecture_decisions",
+    "cross_functional_collab",
+    "quantified_outcomes",
+    "technical_leadership"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "marketing-junior",
+  "title": "行銷專員",
+  "years": "1-3年",
+  "core_skills": [
+    "數位行銷",
+    "社群媒體管理",
+    "內容行銷",
+    "數據分析",
+    "專案管理",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "Digital Marketing",
+    "Social Media",
+    "Content Marketing",
+    "SEO",
+    "Google Analytics",
+    "Campaign Management",
+    "Brand Awareness",
+    "KOL/KOC",
+    "市場調查",
+    "用戶增長",
+    "行銷策略",
+    "廣告效益評估",
+    "品牌行銷",
+    "異業合作",
+    "行銷預算控管"
+  ],
+  "responsibilities": [
+    "制定和執行數位行銷策略以提升品牌影響力",
+    "管理和優化社群媒體平台內容和互動",
+    "分析市場數據並提供行銷策略建議",
+    "協助跨部門合作以支持行銷活動",
+    "監控和報告行銷活動的效益和ROI",
+    "建立和維護與媒體、影響者的關係"
+  ],
+  "interview_gaps": [
+    "campaign_strategy",
+    "brand_management",
+    "market_research",
+    "budget_management",
+    "data_analysis",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

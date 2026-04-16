@@ -1,0 +1,48 @@
+{
+  "id": "customer-success-mid",
+  "title": "客戶成功專員",
+  "years": "3-5年",
+  "core_skills": [
+    "SaaS",
+    "溝通能力",
+    "問題解決",
+    "客戶關係管理",
+    "數據分析",
+    "跨部門協作",
+    "客戶需求分析"
+  ],
+  "keywords": [
+    "Onboarding",
+    "Retention",
+    "Renewal",
+    "Customer Success",
+    "Support",
+    "Escalation",
+    "Upsell",
+    "Cross-sell",
+    "CRM",
+    "數據分析",
+    "客戶滿意度",
+    "客戶關係",
+    "客訴處理",
+    "產品優化",
+    "專案管理"
+  ],
+  "responsibilities": [
+    "協助新客戶上線與教育訓練，提升產品熟悉度與啟用率",
+    "維護客戶關係，提供即時支援與問題排除",
+    "推動客戶續約與成長機會，識別續約風險並提出改善建議",
+    "分析客戶流失與不續約原因，提出具體改善建議",
+    "跨部門協作，推動產品優化與服務提升"
+  ],
+  "interview_gaps": [
+    "client_retention",
+    "onboarding_process",
+    "upselling",
+    "customer_advocacy",
+    "cross_team_collaboration",
+    "data_analysis",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

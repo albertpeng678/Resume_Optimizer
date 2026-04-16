@@ -1,0 +1,49 @@
+{
+  "id": "ui-ux-designer-junior",
+  "title": "UI/UX 設計師",
+  "years": "1-3年",
+  "core_skills": [
+    "Figma",
+    "Wireframe",
+    "Prototype",
+    "使用者介面設計",
+    "使用者體驗設計",
+    "視覺設計",
+    "溝通能力"
+  ],
+  "keywords": [
+    "UI設計",
+    "UX設計",
+    "Figma",
+    "Prototype",
+    "Wireframe",
+    "RWD",
+    "HTML/CSS",
+    "Design System",
+    "使用者體驗",
+    "溝通協作",
+    "視覺設計",
+    "Mockup",
+    "產品設計",
+    "跨部門合作",
+    "設計規範"
+  ],
+  "responsibilities": [
+    "參與產品設計討論，創建Wireframe和Prototype",
+    "與工程師和其他團隊成員合作，確保設計實作可行",
+    "持續優化產品的UI/UX設計",
+    "收集用戶反饋，進行設計改進",
+    "建立與維護設計系統與UI元件庫",
+    "協助設計行銷素材和品牌視覺"
+  ],
+  "interview_gaps": [
+    "design_process",
+    "user_testing",
+    "design_systems",
+    "accessibility",
+    "cross_team_collaboration",
+    "project_scale",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

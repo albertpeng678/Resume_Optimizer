@@ -1,44 +1,35 @@
 import fs from 'fs'
 import path from 'path'
+import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 import { CAREERS, LEVELS, type CareerConfig, type LevelConfig } from './career-config'
 
 const BASE_DIR = path.join(__dirname, 'jd-data')
 
-const HEADERS: Record<string, string> = {
-  'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  Referer: 'https://www.104.com.tw/',
-  Accept: 'application/json, text/plain, */*',
-  'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
+// 軟體資訊產業白名單（coIndustryDesc 包含這些關鍵字即通過）
+const INDUSTRY_KEYWORDS = [
+  '軟體',
+  '網際網路',
+  '電腦系統整合',
+  '資訊',
+  '數位內容',
+  '多媒體',
+  '電子商務',
+  '雲端',
+  'IC設計',
+  '半導體',
+  '通訊',
+  '電信',
+  '資料處理',
+  '區塊鏈',
+]
+
+function isTargetIndustry(industryDesc: string): boolean {
+  if (!industryDesc) return false
+  return INDUSTRY_KEYWORDS.some((kw) => industryDesc.includes(kw))
 }
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
-}
-
-async function fetchWithRetry(
-  url: string,
-  maxRetries = 3
-): Promise<Response> {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const res = await fetch(url, { headers: HEADERS })
-      if (res.status === 429 || res.status >= 500) {
-        if (attempt === maxRetries) return res
-        const backoff = Math.min(2000 * Math.pow(2, attempt), 30000)
-        console.warn(`  ⏳ Retry ${attempt + 1}/${maxRetries} after ${backoff}ms (HTTP ${res.status})`)
-        await sleep(backoff)
-        continue
-      }
-      return res
-    } catch (err) {
-      if (attempt === maxRetries) throw err
-      const backoff = Math.min(2000 * Math.pow(2, attempt), 30000)
-      console.warn(`  ⏳ Retry ${attempt + 1}/${maxRetries} after ${backoff}ms (network error)`)
-      await sleep(backoff)
-    }
-  }
-  throw new Error('Unreachable')
 }
 
 function getOutputDir(careerId: string, levelId: string): string {
@@ -67,69 +58,7 @@ interface SearchResult {
   custName: string
   applyCnt: number
   appearDate: string
-  employees: number
-}
-
-async function searchJobs(
-  keyword: string,
-  exp: string,
-  maxPages = 5
-): Promise<SearchResult[]> {
-  const results: SearchResult[] = []
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-  for (let page = 1; page <= maxPages; page++) {
-    const params = new URLSearchParams({
-      ro: '0',
-      kwop: '7',
-      keyword,
-      expansionType: 'area,spec,com,job,wf,wfprice',
-      order: '14',
-      asc: '0',
-      page: String(page),
-      mode: 's',
-      jobsource: '2018indexpoc',
-    })
-    // exp can be "1,2" — append each value separately
-    exp.split(',').forEach((v) => params.append('exp', v.trim()))
-
-    const url = `https://www.104.com.tw/jobs/search/list?${params}`
-    const res = await fetchWithRetry(url)
-    if (!res.ok) {
-      console.warn(`  Search page ${page} failed: HTTP ${res.status}`)
-      break
-    }
-
-    const data: any = await res.json()
-    const list: any[] = data?.data?.list ?? []
-    if (list.length === 0) break
-
-    for (const item of list) {
-      const applyCnt = Number(item.applyCnt) || 0
-      const appearDate = item.appearDate ?? ''
-      const employees = Number(item.employees) || 0
-
-      // Layer 1 filter: applyCnt, employees, date freshness
-      if (applyCnt < 20) continue
-      if (employees > 0 && employees < 100) continue
-      if (appearDate && new Date(appearDate) < thirtyDaysAgo) continue
-
-      results.push({
-        jobNo: item.link?.job?.replace(/.*\//, '') ?? item.jobNo ?? '',
-        jobName: item.jobName ?? '',
-        custName: item.custName ?? '',
-        applyCnt,
-        appearDate,
-        employees,
-      })
-    }
-
-    console.log(`    Page ${page}: ${list.length} raw, ${results.length} passed filter so far`)
-    await sleep(1200)
-  }
-
-  return results
+  employeeCount: number
 }
 
 interface JobDetail {
@@ -140,30 +69,144 @@ interface JobDetail {
   descriptionLength: number
 }
 
+// Intercept JSON API response from page navigation
+async function interceptJsonResponse(
+  page: Page,
+  urlPattern: string | RegExp,
+  navigationFn: () => Promise<void>,
+  timeout = 30000
+): Promise<any | null> {
+  return new Promise(async (resolve) => {
+    const timer = setTimeout(() => resolve(null), timeout)
+    const handler = async (response: any) => {
+      const url = response.url()
+      const matches =
+        typeof urlPattern === 'string' ? url.includes(urlPattern) : urlPattern.test(url)
+      if (matches) {
+        try {
+          const json = await response.json()
+          clearTimeout(timer)
+          page.off('response', handler)
+          resolve(json)
+        } catch {}
+      }
+    }
+    page.on('response', handler)
+    try {
+      await navigationFn()
+    } catch {
+      clearTimeout(timer)
+      page.off('response', handler)
+      resolve(null)
+    }
+  })
+}
+
+async function searchJobs(
+  page: Page,
+  keyword: string,
+  exp: string,
+  maxPages = 5
+): Promise<SearchResult[]> {
+  const results: SearchResult[] = []
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+    const expParams = exp
+      .split(',')
+      .map((v) => `exp=${v.trim()}`)
+      .join('&')
+    const searchUrl = `https://www.104.com.tw/jobs/search/?keyword=${encodeURIComponent(keyword)}&${expParams}&order=15&page=${pageNum}`
+
+    const apiData = await interceptJsonResponse(
+      page,
+      '/jobs/search/api/jobs',
+      () => page.goto(searchUrl, { waitUntil: 'networkidle', timeout: 45000 }).then(() => {}),
+      20000
+    )
+
+    if (!apiData) {
+      console.warn(`    Page ${pageNum}: no API data captured`)
+      break
+    }
+
+    // API returns { data: { "0": {...}, "1": {...}, ... }, metadata: { pagination: {...} } }
+    const dataObj = apiData.data ?? {}
+    const pagination = apiData.metadata?.pagination ?? {}
+    const list: any[] = Object.values(dataObj).filter(
+      (v: any) => v && typeof v === 'object' && v.jobNo
+    )
+
+    if (list.length === 0) break
+
+    for (const item of list) {
+      const applyCnt = Number(item.applyCnt) || 0
+      const rawDate = String(item.appearDate ?? '')
+      const employeeCount = Number(item.employeeCount) || 0
+
+      const industryDesc: string = item.coIndustryDesc ?? ''
+
+      // Layer 1 filter
+      if (!isTargetIndustry(industryDesc)) continue
+      if (applyCnt < 5) continue
+      // Date filter: appearDate format "20260413"
+      if (rawDate.length === 8) {
+        const d = new Date(
+          `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+        )
+        if (d < thirtyDaysAgo) continue
+      }
+
+      // Extract jobNo from link or field
+      const jobLink: string = item.link?.job ?? ''
+      const jobNo = jobLink.replace(/.*\//, '') || String(item.jobNo || '')
+
+      results.push({
+        jobNo,
+        jobName: item.jobName ?? '',
+        custName: item.custName ?? '',
+        applyCnt,
+        appearDate: rawDate,
+        employeeCount,
+      })
+    }
+
+    console.log(
+      `    Page ${pageNum}: ${list.length} raw, ${results.length} passed filter so far`
+    )
+
+    if (pageNum >= (pagination.lastPage ?? 1)) break
+    await sleep(1500)
+  }
+
+  return results
+}
+
 async function getJobDetail(
+  page: Page,
   jobNo: string,
   custName: string
 ): Promise<JobDetail | null> {
-  const url = `https://www.104.com.tw/job/ajax/content/${jobNo}`
-  const res = await fetchWithRetry(url)
-  if (!res.ok) return null
+  const jobUrl = `https://www.104.com.tw/job/${jobNo}`
 
-  const data: any = await res.json()
-  const d = data?.data
-  if (!d) return null
+  const apiData = await interceptJsonResponse(
+    page,
+    `/api/jobs/${jobNo}`,
+    () => page.goto(jobUrl, { waitUntil: 'networkidle', timeout: 45000 }).then(() => {}),
+    20000
+  )
+
+  if (!apiData?.data) return null
+  const d = apiData.data
 
   const jobDetail = d.jobDetail ?? {}
   const condition = d.condition ?? {}
 
-  const description = [
-    jobDetail.jobDescription ?? '',
-    jobDetail.workContent ?? '',
-    condition.other ?? '',
-  ]
+  const description = [jobDetail.jobDescription ?? '', condition.other ?? '']
     .filter(Boolean)
     .join('\n')
 
-  // Only exclude nearly-empty descriptions; caller sorts by length and picks top N
   if (description.length < 50) return null
 
   const specialty: string[] = (condition.specialty ?? [])
@@ -173,18 +216,17 @@ async function getJobDetail(
     .map((s: any) => (typeof s === 'string' ? s : s?.description ?? ''))
     .filter(Boolean)
 
-  const skills = [...specialty, ...skill]
-
   return {
     jobName: d.header?.jobName ?? jobDetail.jobName ?? '',
-    custName: custName,
+    custName,
     description,
-    skills,
+    skills: [...specialty, ...skill],
     descriptionLength: description.length,
   }
 }
 
 async function scrapeCombo(
+  page: Page,
   career: CareerConfig,
   level: LevelConfig,
   comboIndex: number,
@@ -192,20 +234,24 @@ async function scrapeCombo(
 ): Promise<{ collected: number; skipped: boolean }> {
   const existing = countExistingJobs(career.id, level.id)
   if (existing >= 10) {
-    console.log(`[${comboIndex}/${totalCombos}] ${career.id}/${level.id}: SKIP (already ${existing} jobs)`)
+    console.log(
+      `[${comboIndex}/${totalCombos}] ${career.id}/${level.id}: SKIP (already ${existing} jobs)`
+    )
     return { collected: existing, skipped: true }
   }
 
-  console.log(`\n[${comboIndex}/${totalCombos}] ${career.id}/${level.id} (${career.role_zh} ${level.years_zh})`)
+  console.log(
+    `\n[${comboIndex}/${totalCombos}] ${career.id}/${level.id} (${career.role_zh} ${level.years_zh})`
+  )
 
   // Try each keyword, collect candidates
   let candidates: SearchResult[] = []
   for (const keyword of career.keywords) {
     console.log(`  Searching: "${keyword}" exp=${level.exp}`)
-    const results = await searchJobs(keyword, level.exp)
+    const results = await searchJobs(page, keyword, level.exp)
     candidates.push(...results)
-    if (candidates.length >= 30) break // enough candidates
-    await sleep(1000)
+    if (candidates.length >= 30) break
+    await sleep(1500)
   }
 
   // Deduplicate by jobNo
@@ -218,25 +264,32 @@ async function scrapeCombo(
 
   console.log(`  ${candidates.length} unique candidates after Layer 1 filter`)
 
-  // Fetch details for up to 30 candidates (to have enough to pick from)
-  const maxToFetch = Math.min(candidates.length, 30)
+  // Fetch details for up to 25 candidates
+  const maxToFetch = Math.min(candidates.length, 25)
   const detailResults: Array<{ candidate: SearchResult; detail: JobDetail }> = []
 
   for (let i = 0; i < maxToFetch; i++) {
     const candidate = candidates[i]
-    const detail = await getJobDetail(candidate.jobNo, candidate.custName)
+    console.log(`  Fetching detail [${i + 1}/${maxToFetch}]: ${candidate.jobName}...`)
+    const detail = await getJobDetail(page, candidate.jobNo, candidate.custName)
     if (detail) {
       detailResults.push({ candidate, detail })
-      console.log(`  📄 [${detailResults.length}] ${detail.jobName} (${detail.descriptionLength} chars)`)
+      console.log(
+        `  📄 [${detailResults.length}] ${detail.jobName} (${detail.descriptionLength} chars)`
+      )
     }
-    await sleep(800)
+    // Enough good results — stop early
+    if (detailResults.length >= 15) break
+    await sleep(1200)
   }
 
   // Sort by description length descending, take top 10
   detailResults.sort((a, b) => b.detail.descriptionLength - a.detail.descriptionLength)
   const topResults = detailResults.slice(0, 10 - existing)
 
-  console.log(`  Fetched ${detailResults.length} details, taking top ${topResults.length} by description length`)
+  console.log(
+    `  Fetched ${detailResults.length} details, taking top ${topResults.length} by description length`
+  )
 
   // Write individual JSON files
   const outDir = getOutputDir(career.id, level.id)
@@ -254,13 +307,16 @@ async function scrapeCombo(
         jobNo: candidate.jobNo,
         applyCnt: candidate.applyCnt,
         appearDate: candidate.appearDate,
+        employeeCount: candidate.employeeCount,
         careerId: career.id,
         levelId: level.id,
         scrapedAt: new Date().toISOString(),
       },
     }
     fs.writeFileSync(filePath, JSON.stringify(output, null, 2))
-    console.log(`  ✓ [${collected}/10] ${detail.jobName} @ ${detail.custName} (${descriptionLength} chars)`)
+    console.log(
+      `  ✓ [${collected}/10] ${detail.jobName} @ ${detail.custName} (${descriptionLength} chars)`
+    )
   }
 
   if (collected < 10) {
@@ -273,13 +329,8 @@ async function scrapeCombo(
 async function main() {
   const args = parseCliArgs()
 
-  // Filter careers/levels by CLI args
-  const careers = args.career
-    ? CAREERS.filter((c) => c.id === args.career)
-    : CAREERS
-  const levels = args.level
-    ? LEVELS.filter((l) => l.id === args.level)
-    : LEVELS
+  const careers = args.career ? CAREERS.filter((c) => c.id === args.career) : CAREERS
+  const levels = args.level ? LEVELS.filter((l) => l.id === args.level) : LEVELS
 
   if (careers.length === 0) {
     console.error(`Unknown career: ${args.career}`)
@@ -293,10 +344,11 @@ async function main() {
   }
 
   const totalCombos = careers.length * levels.length
-  console.log(`\n=== 104 Job Scraper ===`)
-  console.log(`Careers: ${careers.length}, Levels: ${levels.length}, Total combos: ${totalCombos}`)
+  console.log(`\n=== 104 Job Scraper (Playwright) ===`)
+  console.log(
+    `Careers: ${careers.length}, Levels: ${levels.length}, Total combos: ${totalCombos}`
+  )
 
-  // Resume check
   let alreadyDone = 0
   for (const career of careers) {
     for (const level of levels) {
@@ -308,23 +360,47 @@ async function main() {
   }
   console.log('')
 
+  // Launch browser
+  console.log('Launching browser...')
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext()
+  const page = await context.newPage()
+
+  // Warm up: visit 104 homepage to get Cloudflare cookies
+  console.log('Warming up (visiting 104 homepage)...')
+  await page.goto('https://www.104.com.tw/', {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  })
+  await sleep(2000)
+
   const startTime = Date.now()
   let comboIndex = 0
   let totalCollected = 0
   let skippedCount = 0
   const failedCombos: string[] = []
 
-  for (const career of careers) {
-    for (const level of levels) {
-      comboIndex++
-      const { collected, skipped } = await scrapeCombo(career, level, comboIndex, totalCombos)
-      totalCollected += collected
-      if (skipped) skippedCount++
-      if (collected < 5 && !skipped) failedCombos.push(`${career.id}/${level.id} (${collected})`)
+  try {
+    for (const career of careers) {
+      for (const level of levels) {
+        comboIndex++
+        const { collected, skipped } = await scrapeCombo(
+          page,
+          career,
+          level,
+          comboIndex,
+          totalCombos
+        )
+        totalCollected += collected
+        if (skipped) skippedCount++
+        if (collected < 5 && !skipped)
+          failedCombos.push(`${career.id}/${level.id} (${collected})`)
 
-      // Pause between combos
-      if (!skipped) await sleep(3000)
+        if (!skipped) await sleep(3000)
+      }
     }
+  } finally {
+    await browser.close()
   }
 
   const elapsed = Math.round((Date.now() - startTime) / 1000)

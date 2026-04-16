@@ -1,0 +1,49 @@
+{
+  "id": "marketing-mid",
+  "title": "行銷專員",
+  "years": "3-5年",
+  "core_skills": [
+    "數位行銷",
+    "社群媒體管理",
+    "內容行銷",
+    "品牌管理",
+    "市場分析",
+    "專案管理",
+    "跨部門協作"
+  ],
+  "keywords": [
+    "Digital Marketing",
+    "Social Media",
+    "Content Marketing",
+    "Brand Management",
+    "Market Analysis",
+    "Project Management",
+    "Cross-Functional Collaboration",
+    "SEO",
+    "Google Analytics",
+    "KOL/KOC",
+    "Campaign Strategy",
+    "ROI",
+    "Performance Metrics",
+    "User Acquisition",
+    "Marketing Strategy"
+  ],
+  "responsibilities": [
+    "策劃和執行整合行銷活動，包括社群媒體和數位行銷計畫",
+    "分析市場數據和行銷活動效能，提供優化建議",
+    "管理品牌形象和社群媒體帳號，提升品牌知名度",
+    "與內部團隊合作，支持產品上市和行銷活動",
+    "建立並維護與媒體、影響者和合作夥伴的關係",
+    "制定並管理行銷預算，確保資源有效運用"
+  ],
+  "interview_gaps": [
+    "campaign_strategy",
+    "brand_management",
+    "market_research",
+    "budget_management",
+    "data_analysis",
+    "cross_team_collaboration",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}

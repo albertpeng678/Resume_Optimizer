@@ -1,0 +1,49 @@
+{
+  "id": "product-manager-mid",
+  "title": "產品經理",
+  "years": "3-5年",
+  "core_skills": [
+    "專案管理",
+    "市場分析",
+    "需求分析",
+    "跨部門協作",
+    "數據分析",
+    "產品規劃",
+    "用戶研究"
+  ],
+  "keywords": [
+    "產品管理",
+    "需求分析",
+    "市場策略",
+    "跨部門協作",
+    "數據驅動",
+    "產品路線圖",
+    "PRD",
+    "用戶體驗",
+    "敏捷開發",
+    "產品迭代",
+    "競品分析",
+    "產品優化",
+    "商業洞察",
+    "產品上市",
+    "用戶反饋"
+  ],
+  "responsibilities": [
+    "定義產品需求並撰寫規格文件",
+    "進行市場和競品分析以制定產品策略",
+    "協調跨部門資源推動產品開發與上線",
+    "監控產品性能並進行數據分析以優化產品",
+    "管理產品生命周期並制定產品路線圖",
+    "與用戶進行溝通以收集反饋和需求"
+  ],
+  "interview_gaps": [
+    "product_planning",
+    "data_analysis",
+    "cross_team_collaboration",
+    "user_research",
+    "project_scale",
+    "technical_background",
+    "quantified_outcomes",
+    "leadership_experience"
+  ]
+}
