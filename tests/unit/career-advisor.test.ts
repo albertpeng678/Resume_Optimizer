@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  buildCareerAdvisorPrompt,
   parseQuantifyTrigger,
   stripQuantifyTrigger,
   parseGapStatus,
@@ -61,5 +62,41 @@ describe('stripGapStatus', () => {
     const stripped = stripGapStatus(content)
     expect(stripped).not.toContain('[GAPS_STATUS]')
     expect(stripped).toContain('回答')
+  })
+})
+
+describe('buildCareerAdvisorPrompt — structured opening', () => {
+  const mockPersona = {
+    id: 'pm-mid',
+    title: '產品經理',
+    years: '3-5年',
+    core_skills: ['產品規劃', '數據分析'],
+    keywords: ['roadmap', 'OKR'],
+    responsibilities: ['定義產品需求'],
+    interview_gaps: ['跨部門協作經驗', '數據驅動決策', '專案交付成果'],
+  }
+  const mockResume = '我曾主導 RAG 知識問答系統從 0 到 1 建置，並定義關鍵量化指標。'
+
+  it('prompt contains N-topic announcement with exact count', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('3 個主題')
+  })
+
+  it('prompt lists all interview_gaps by name', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('跨部門協作經驗')
+    expect(prompt).toContain('數據驅動決策')
+    expect(prompt).toContain('專案交付成果')
+  })
+
+  it('prompt instructs AI to open with topic list', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('第一則訊息')
+  })
+
+  it('QUANTIFY_TRIGGER rule uses aggressive language not cautious', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).not.toContain('不要每次都加')
+    expect(prompt).toContain('必須')
   })
 })
