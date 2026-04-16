@@ -35,8 +35,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (!markdown || markdown.trim().length < 50) {
+      const isImagePdf = file.type === 'application/pdf' && markdown.trim().length < 5
       return NextResponse.json(
-        { error: 'Could not extract meaningful content from file' },
+        {
+          error: isImagePdf
+            ? '此 PDF 為圖片格式，無法擷取文字內容。請上傳含有可選取文字的 PDF，或改用 DOCX 格式。'
+            : '無法從檔案中擷取足夠內容，請確認檔案是否正確。',
+        },
         { status: 422 }
       )
     }
