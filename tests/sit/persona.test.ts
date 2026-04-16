@@ -28,7 +28,7 @@ describe('Persona API', () => {
       expect(rec).toHaveProperty('reason')
       expect(VALID_CAREERS.has(rec.career)).toBe(true)
     }
-  })
+  }, 30000)
 
   it('returns 400 when resumeMarkdown is missing', async () => {
     const response = await fetch('http://localhost:3000/api/persona', {

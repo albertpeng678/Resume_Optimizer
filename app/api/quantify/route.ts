@@ -91,7 +91,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'LLM call failed' }, { status: 500 })
   }
 
-  const { cleanContent, outcome } = parseQuantifyResponse(rawContent, roundNumber)
+  const { outcome } = parseQuantifyResponse(rawContent, roundNumber)
+  let { cleanContent } = parseQuantifyResponse(rawContent, roundNumber)
+
+  // Fallback: if LLM returned only a tag with no human-readable text, provide a neutral message
+  if (!cleanContent && roundNumber === 5) {
+    cleanContent = outcome.type === 'result'
+      ? '好的，我已整理出您的量化數字。'
+      : '感謝您的分享，目前難以找到精確數字，但您的描述已很有說服力。'
+  }
+
   const isComplete = roundNumber === 5
   let result: QuantifyResult | null = null
 

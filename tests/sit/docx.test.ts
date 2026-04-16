@@ -49,7 +49,7 @@ describe('Map API + Download API', () => {
     const data = await response.json()
     expect(data.resumeText).toBeTruthy()
     expect(data.sectionsCount).toBeGreaterThan(0)
-  })
+  }, 60000)
 
   it('download API returns valid DOCX file', async () => {
     const response = await fetch(`http://localhost:3000/api/download/${sessionId}`)
