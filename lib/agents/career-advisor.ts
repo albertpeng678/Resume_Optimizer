@@ -39,7 +39,7 @@ export interface GapStatus {
 }
 
 export function parseGapStatus(content: string): GapStatus | null {
-  const match = content.match(/\[GAPS_STATUS\]:\s*(\{.*\})/)
+  const match = content.match(/\[GAPS_STATUS\]:\s*(\{[\s\S]*?\})\s*$/)
   if (!match) return null
   try {
     return JSON.parse(match[1])
@@ -49,5 +49,5 @@ export function parseGapStatus(content: string): GapStatus | null {
 }
 
 export function stripGapStatus(content: string): string {
-  return content.replace(/\n?\[GAPS_STATUS\]:\s*\{.*\}/, '').trim()
+  return content.replace(/\n?\[GAPS_STATUS\]:\s*\{[\s\S]*?\}\s*$/, '').trim()
 }
