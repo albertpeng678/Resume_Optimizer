@@ -21,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" className={inter.variable}>
       <body className="min-h-screen bg-surface">
-        {children}
+        <main className="max-w-2xl mx-auto px-4 py-12">
+          {children}
+        </main>
       </body>
     </html>
   )
