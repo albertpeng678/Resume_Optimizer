@@ -34,3 +34,30 @@ export function getPersona(id: string): PersonaTemplate | null {
 export function getAllPersonas(): PersonaTemplate[] {
   return Object.values(loadTemplates())
 }
+
+export interface CareerInfo {
+  id: string
+  title: string
+  description: string
+}
+
+export function getCareerList(): CareerInfo[] {
+  const templates = loadTemplates()
+  const byCareer = new Map<string, Record<string, PersonaTemplate>>()
+
+  for (const persona of Object.values(templates)) {
+    const careerId = persona.id.replace(/-(junior|mid|senior)$/, '')
+    const level = persona.id.replace(`${careerId}-`, '')
+    if (!byCareer.has(careerId)) byCareer.set(careerId, {})
+    byCareer.get(careerId)![level] = persona
+  }
+
+  return Array.from(byCareer.entries()).map(([careerId, levels]) => {
+    const preferred = levels['mid'] ?? levels['junior'] ?? levels['senior']
+    return {
+      id: careerId,
+      title: preferred.title,
+      description: preferred.responsibilities.slice(0, 2).join('、'),
+    }
+  })
+}
