@@ -20,8 +20,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-TW" className={inter.variable}>
-      <body className="min-h-screen bg-surface">
-        <main className="max-w-2xl mx-auto px-4 py-12">
+      <body className="min-h-screen bg-surface flex flex-col">
+        <main className="flex-1 flex flex-col">
           {children}
         </main>
       </body>

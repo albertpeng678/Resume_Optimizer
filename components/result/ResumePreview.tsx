@@ -86,7 +86,7 @@ export function ResumePreview({ sessionId, resumeText, quantifyData }: ResumePre
   const lines = parseLines(resumeText)
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="flex-1 min-h-0 bg-surface overflow-y-auto">
       {/* Header */}
       <div className="bg-white border-b border-secondary/20 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">

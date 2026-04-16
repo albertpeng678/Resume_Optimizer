@@ -81,6 +81,7 @@ export function HomeClient({ careers }: HomeClientProps) {
   }
 
   return (
+    <div className="max-w-2xl w-full mx-auto px-4 pt-16 pb-12">
     <div className="space-y-8">
       <ProgressBar currentStep={step} />
 
@@ -88,13 +89,16 @@ export function HomeClient({ careers }: HomeClientProps) {
         <>
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-ink">AI 履歷優化器</h1>
-            <p className="text-ink/60">上傳履歷，讓 AI 透過訪談了解你的真實價值</p>
+            <p className="text-ink/60">上傳履歷，讓 AI 透過訪談挖掘你的真實成就</p>
           </div>
           <FileUpload onUploadComplete={handleUploadComplete} />
           {isLoading && (
-            <div className="text-center text-ink/60 flex items-center justify-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              AI 正在分析你的履歷...
+            <div className="bg-white rounded-xl border border-secondary/20 px-4 py-3 flex items-center gap-3 shadow-sm">
+              <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-ink">AI 正在分析你的履歷</p>
+                <p className="text-xs text-ink/40">找出最適合的職位方向...</p>
+              </div>
             </div>
           )}
         </>
@@ -207,6 +211,7 @@ export function HomeClient({ careers }: HomeClientProps) {
           {error && <p className="text-center text-red-500 text-sm">{error}</p>}
         </>
       )}
+    </div>
     </div>
   )
 }

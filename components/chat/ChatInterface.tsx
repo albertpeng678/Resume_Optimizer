@@ -177,7 +177,7 @@ export function ChatInterface({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-surface">
+    <div className="flex flex-col flex-1 min-h-0 bg-surface">
       {/* Header */}
       <div className="bg-white border-b border-secondary/20 px-4 py-3">
         <div className="max-w-2xl mx-auto">
