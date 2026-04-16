@@ -22,6 +22,8 @@
 
 ### Step 2：選擇目標職位
 - 顯示 AI 推薦的 3 個職位類別（career name + reason），每個都標記「AI 推薦」
+- 下方有「查看全部職位」按鈕，點擊展開完整 18 個 career 列表（排除已推薦的）
+- 非推薦的卡片不顯示「AI 推薦」標記和 reason
 - 用戶點選一個職位，按「下一步」進入 Step 3
 
 ### Step 3：選擇年資等級
@@ -48,7 +50,7 @@
 | `components/wizard/ProgressBar.tsx` | 進度條元件，接收 `currentStep` prop（1/2/3） |
 | `components/wizard/HomeClient.tsx` | Client 端 wizard 主邏輯，管理 step state 和 API 呼叫 |
 | `components/upload/FileUpload.tsx` | 拖曳/點擊上傳區塊，呼叫 `/api/upload` |
-| `components/persona/PersonaCard.tsx` | 職位推薦卡片（名稱 + AI 推薦標記 + reason） |
+| `components/persona/PersonaCard.tsx` | 職位卡片（推薦的顯示 AI 標記 + reason，非推薦的只顯示名稱） |
 | `components/persona/LevelCard.tsx` | 年資等級卡片（名稱 + 年資範圍） |
 
 ### 修改檔案
@@ -74,7 +76,7 @@ HomeClient (client)
     → POST /api/persona { resumeMarkdown } → recommendations: { career: string, reason: string }[]
     → setStep(2)
 
-  Step 2: PersonaCard × 3
+  Step 2: PersonaCard × 3 (推薦) + 「查看全部職位」展開剩餘 careers
     → setSelectedCareer(career)
     → 按「下一步」→ setStep(3)
 

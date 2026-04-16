@@ -570,9 +570,15 @@ describe('PersonaCard', () => {
     expect(screen.getByText('你的經歷與產品規劃高度相關')).toBeDefined()
   })
 
-  it('shows AI badge', () => {
+  it('shows AI badge when reason is provided', () => {
     render(<PersonaCard {...props} />)
     expect(screen.getByText('AI 推薦')).toBeDefined()
+  })
+
+  it('hides AI badge and reason when reason is not provided', () => {
+    render(<PersonaCard {...props} reason={undefined} />)
+    expect(screen.getByText('產品經理')).toBeDefined()
+    expect(screen.queryByText('AI 推薦')).toBeNull()
   })
 
   it('calls onSelect when clicked', () => {
@@ -598,7 +604,7 @@ import { CheckCircle2, Star } from 'lucide-react'
 interface PersonaCardProps {
   career: string
   title: string
-  reason: string
+  reason?: string
   selected: boolean
   onSelect: () => void
 }
@@ -619,12 +625,14 @@ export function PersonaCard({ title, reason, selected, onSelect }: PersonaCardPr
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-ink">{title}</h3>
-            <span className="flex items-center gap-1 text-xs text-cta font-medium">
-              <Star className="w-3 h-3 fill-cta" />
-              AI 推薦
-            </span>
+            {reason && (
+              <span className="flex items-center gap-1 text-xs text-cta font-medium">
+                <Star className="w-3 h-3 fill-cta" />
+                AI 推薦
+              </span>
+            )}
           </div>
-          <p className="text-sm text-primary">{reason}</p>
+          {reason && <p className="text-sm text-primary">{reason}</p>}
         </div>
         {selected && <CheckCircle2 data-testid="check-icon" className="w-5 h-5 text-primary flex-shrink-0" />}
       </div>
@@ -771,6 +779,7 @@ export function HomeClient({ careers }: HomeClientProps) {
   const [selectedLevel, setSelectedLevel] = useState<'junior' | 'mid' | 'senior' | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showAllCareers, setShowAllCareers] = useState(false)
 
   async function handleUploadComplete(markdown: string) {
     setResumeMarkdown(markdown)
@@ -832,42 +841,75 @@ export function HomeClient({ careers }: HomeClientProps) {
         </>
       )}
 
-      {step === 2 && (
-        <>
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold text-ink">選擇目標職位</h1>
-            <p className="text-ink/60">根據你的履歷，AI 推薦以下方向</p>
-          </div>
-          <div className="space-y-3">
-            {recommendations.map((rec) => (
-              <PersonaCard
-                key={rec.career}
-                career={rec.career}
-                title={rec.title}
-                reason={rec.reason}
-                selected={selectedCareer === rec.career}
-                onSelect={() => setSelectedCareer(rec.career)}
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => { if (selectedCareer) setStep(3) }}
-            disabled={!selectedCareer}
-            className="w-full py-4 rounded-xl bg-cta text-white font-semibold text-lg
-              cursor-pointer transition-colors duration-200
-              hover:bg-cta/90 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            下一步
-          </button>
-        </>
-      )}
+      {step === 2 && (() => {
+        const recommendedIds = new Set(recommendations.map((r) => r.career))
+        const otherCareers = careers.filter((c) => !recommendedIds.has(c.id))
+
+        return (
+          <>
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-bold text-ink">選擇目標職位</h1>
+              <p className="text-ink/60">根據你的履歷，AI 推薦以下方向</p>
+            </div>
+            <div className="space-y-3">
+              {recommendations.map((rec) => (
+                <PersonaCard
+                  key={rec.career}
+                  career={rec.career}
+                  title={rec.title}
+                  reason={rec.reason}
+                  selected={selectedCareer === rec.career}
+                  onSelect={() => setSelectedCareer(rec.career)}
+                />
+              ))}
+            </div>
+
+            {!showAllCareers && otherCareers.length > 0 && (
+              <button
+                onClick={() => setShowAllCareers(true)}
+                className="w-full py-3 text-sm text-primary font-medium hover:text-primary/80
+                  cursor-pointer transition-colors duration-200"
+              >
+                查看全部職位 ({otherCareers.length})
+              </button>
+            )}
+
+            {showAllCareers && (
+              <div className="space-y-3">
+                <p className="text-sm text-ink/40 font-medium">其他職位</p>
+                {otherCareers.map((career) => (
+                  <PersonaCard
+                    key={career.id}
+                    career={career.id}
+                    title={career.title}
+                    selected={selectedCareer === career.id}
+                    onSelect={() => setSelectedCareer(career.id)}
+                  />
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => { if (selectedCareer) setStep(3) }}
+              disabled={!selectedCareer}
+              className="w-full py-4 rounded-xl bg-cta text-white font-semibold text-lg
+                cursor-pointer transition-colors duration-200
+                hover:bg-cta/90 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              下一步
+            </button>
+          </>
+        )
+      })()}
 
       {step === 3 && (
         <>
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold text-ink">選擇目標年資</h1>
             <p className="text-ink/60">
-              {recommendations.find((r) => r.career === selectedCareer)?.title ?? selectedCareer}
+              {recommendations.find((r) => r.career === selectedCareer)?.title
+                ?? careers.find((c) => c.id === selectedCareer)?.title
+                ?? selectedCareer}
             </p>
           </div>
           <div className="flex gap-3">
