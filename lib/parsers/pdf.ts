@@ -1,9 +1,7 @@
-import { PDFParse } from 'pdf-parse'
+import { extractText } from 'unpdf'
 
 export async function parsePdfToMarkdown(buffer: Buffer): Promise<string> {
-  const parser = new PDFParse({ data: new Uint8Array(buffer) })
-  const result = await parser.getText()
-  const text = result.text
+  const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
 
   const lines = text.split('\n')
   const cleaned = lines
