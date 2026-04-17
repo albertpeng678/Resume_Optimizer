@@ -71,13 +71,11 @@ export async function POST(req: NextRequest) {
       temperature: 0.3,
     })
 
-    const responseText = response.choices[0].message.content
-    if (!responseText) {
-      return NextResponse.json(
-        { error: 'Empty response from OpenAI' },
-        { status: 500 }
-      )
+    if (!response.choices || response.choices.length === 0 || !response.choices[0].message.content) {
+      return NextResponse.json({ error: 'Empty response from OpenAI' }, { status: 500 })
     }
+
+    const responseText = response.choices[0].message.content
 
     // Parse JSON response
     let formulas: FormulaTemplate[]

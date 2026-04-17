@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   if (!formulaId || typeof formulaId !== 'string') {
     return NextResponse.json({ error: 'formulaId is required' }, { status: 400 })
   }
-  if (!variables || typeof variables !== 'object') {
+  if (!variables || typeof variables !== 'object' || Array.isArray(variables)) {
     return NextResponse.json({ error: 'variables is required' }, { status: 400 })
   }
   if (!computedResult || typeof computedResult !== 'string') {
