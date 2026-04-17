@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
   if (!userMessage || typeof userMessage !== 'string' || !userMessage.trim()) {
     return new Response(JSON.stringify({ error: 'userMessage is required' }), { status: 400 })
   }
+  const isAutoStart = userMessage.trim() === '__start__'
 
   let db: ReturnType<typeof createServerClient>
   let session: any
@@ -67,7 +68,8 @@ export async function POST(req: NextRequest) {
         role: m.role as 'user' | 'assistant',
         content: m.content,
       })),
-      { role: 'user' as const, content: userMessage },
+      // __start__ triggers the opening message without adding a user turn
+      ...(isAutoStart ? [] : [{ role: 'user' as const, content: userMessage }]),
     ]
 
     stream = await openai.chat.completions.create({
@@ -101,13 +103,27 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // Strip metadata and emit replace event so client shows clean final content
-        const cleanContent = stripGapStatus(stripQuantifyTrigger(fullContent)).trim()
-        controller.enqueue(encoder.encode(sseEvent('replace', JSON.stringify(cleanContent))))
-
-        // Parse metadata
+        // Parse metadata from full content
         const gapStatus = parseGapStatus(fullContent)
         const quantifyTrigger = parseQuantifyTrigger(fullContent)
+
+        // Handle [SPLIT] — emit multiple message segments
+        const SPLIT_TOKEN = '[SPLIT]'
+        const parts = fullContent.split(SPLIT_TOKEN)
+
+        let lastCleanContent = ''
+        for (let i = 0; i < parts.length; i++) {
+          const partClean = stripGapStatus(stripQuantifyTrigger(parts[i])).trim()
+          if (!partClean) continue
+          lastCleanContent = partClean
+
+          controller.enqueue(encoder.encode(sseEvent('replace', JSON.stringify(partClean))))
+
+          if (i < parts.length - 1) {
+            // Not the last part — commit this message and start a new streaming bubble
+            controller.enqueue(encoder.encode(sseEvent('split', '')))
+          }
+        }
 
         // Emit trigger event if present
         if (quantifyTrigger) {
@@ -117,11 +133,11 @@ export async function POST(req: NextRequest) {
         // Emit done
         controller.enqueue(encoder.encode(sseEvent('done', '')))
 
-        // Persist to Supabase
+        // Persist to Supabase — only add user turn if not auto-start
         const updatedHistory = [
           ...history,
-          { role: 'user', content: userMessage },
-          { role: 'assistant', content: cleanContent },
+          ...(isAutoStart ? [] : [{ role: 'user', content: userMessage }]),
+          { role: 'assistant', content: lastCleanContent },
         ]
         const updateData: Record<string, unknown> = {
           conversation_history: updatedHistory,

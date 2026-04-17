@@ -4,7 +4,8 @@
 `C:/side/Resume_Optimizer/resume-optimizer/`
 
 ## 實作計畫
-完整計畫在：`C:\Users\albertpeng\.claude\plans\refactored-splashing-hopcroft.md`
+- 原始計畫：`C:\Users\albertpeng\.claude\plans\refactored-splashing-hopcroft.md`
+- 訪談升級（optimization.md）：`C:\Users\albertpeng\.claude\plans\optimization-md-twinkling-dijkstra.md`
 
 ## 技術棧（重要差異）
 - **Next.js 16**（非 14），App Router
