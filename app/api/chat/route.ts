@@ -86,10 +86,8 @@ export async function POST(req: NextRequest) {
     content: string
   }>
 
-  // Stream SSE response, accumulate full content
-  // Hold back streaming until we have complete lines (to filter metadata lines at the end)
+  // Stream every chunk immediately; emit replace event at end with clean content
   let fullContent = ''
-  let flushedUpTo = 0
   const encoder = new TextEncoder()
 
   const readable = new ReadableStream({
@@ -97,65 +95,42 @@ export async function POST(req: NextRequest) {
       try {
         for await (const chunk of stream) {
           const delta = chunk.choices[0]?.delta?.content || ''
-          fullContent += delta
-
-          // Stream all complete lines except the last (which might contain metadata)
-          // Also strip [QUANTIFY_TRIGGER] lines eagerly to prevent them leaking as visible text
-          const lastNewline = fullContent.lastIndexOf('\n', fullContent.length - 1)
-          if (lastNewline > flushedUpTo) {
-            const toFlush = fullContent.slice(flushedUpTo, lastNewline + 1)
-            const filteredFlush = toFlush.replace(/\[QUANTIFY_TRIGGER\]:\s*\{[^\n]+\}\n?/g, '')
-            if (filteredFlush) {
-              controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(filteredFlush))))
-            }
-            flushedUpTo = lastNewline + 1
+          if (delta) {
+            fullContent += delta
+            controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(delta))))
           }
         }
 
-        // Process remaining content: strip both [GAPS_STATUS] and [QUANTIFY_TRIGGER]
-        const remaining = fullContent.slice(flushedUpTo)
-        const cleanRemaining = stripGapStatus(stripQuantifyTrigger(remaining)).trimEnd()
-        if (cleanRemaining) {
-          controller.enqueue(encoder.encode(sseEvent('text', JSON.stringify(cleanRemaining))))
-        }
+        // Strip metadata and emit replace event so client shows clean final content
+        const cleanContent = stripGapStatus(stripQuantifyTrigger(fullContent)).trim()
+        controller.enqueue(encoder.encode(sseEvent('replace', JSON.stringify(cleanContent))))
 
-        // Parse metadata from full content
+        // Parse metadata
         const gapStatus = parseGapStatus(fullContent)
         const quantifyTrigger = parseQuantifyTrigger(fullContent)
 
-        // Build clean content for Supabase storage (strip all metadata)
-        const cleanContent = stripGapStatus(stripQuantifyTrigger(fullContent)).trim()
-
         // Emit trigger event if present
         if (quantifyTrigger) {
-          controller.enqueue(
-            encoder.encode(sseEvent('trigger', JSON.stringify(quantifyTrigger)))
-          )
+          controller.enqueue(encoder.encode(sseEvent('trigger', JSON.stringify(quantifyTrigger))))
         }
 
-        // Emit done event
+        // Emit done
         controller.enqueue(encoder.encode(sseEvent('done', '')))
 
-        // Update Supabase with clean content
+        // Persist to Supabase
         const updatedHistory = [
           ...history,
           { role: 'user', content: userMessage },
           { role: 'assistant', content: cleanContent },
         ]
-
         const updateData: Record<string, unknown> = {
           conversation_history: updatedHistory,
           gaps_completed: gapStatus?.completed.length ?? session.gaps_completed,
           updated_at: new Date().toISOString(),
         }
-        if (
-          gapStatus &&
-          session.gaps_total &&
-          gapStatus.completed.length >= session.gaps_total
-        ) {
+        if (gapStatus && session.gaps_total && gapStatus.completed.length >= session.gaps_total) {
           updateData.status = 'completed'
         }
-
         await db!.from('sessions').update(updateData).eq('id', sessionId)
       } catch (err) {
         console.error('Chat stream error:', err)
