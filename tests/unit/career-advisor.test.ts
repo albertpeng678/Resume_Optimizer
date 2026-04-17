@@ -8,16 +8,20 @@ import {
 } from '@/lib/agents/career-advisor'
 
 describe('parseQuantifyTrigger', () => {
-  it('parses valid [QUANTIFY_TRIGGER] line', () => {
-    const content = '很好的分享。\n[QUANTIFY_TRIGGER]: {"topic": "revenue_impact", "context": "用戶描述帶來業績成長"}\n[GAPS_STATUS]: {"completed":[],"current":"revenue_impact"}'
+  it('parses valid [QUANTIFY_TRIGGER] line with new fields', () => {
+    const content =
+      '很好的分享。\n[QUANTIFY_TRIGGER]: {"topic": "revenue_impact", "context": "用戶描述帶來業績成長", "original_text": "主導 RAG 知識問答產品", "formula_hint": "percentage_improvement"}\n[GAPS_STATUS]: {"completed":[],"skipped":[],"current":"revenue_impact","current_turns":1}'
     const result = parseQuantifyTrigger(content)
     expect(result).not.toBeNull()
     expect(result!.topic).toBe('revenue_impact')
     expect(result!.context).toBe('用戶描述帶來業績成長')
+    expect(result!.original_text).toBe('主導 RAG 知識問答產品')
+    expect(result!.formula_hint).toBe('percentage_improvement')
   })
 
   it('returns null when no [QUANTIFY_TRIGGER] present', () => {
-    const content = '正常回答\n[GAPS_STATUS]: {"completed":[],"current":"quantified_outcomes"}'
+    const content =
+      '正常回答\n[GAPS_STATUS]: {"completed":[],"skipped":[],"current":"quantified_outcomes","current_turns":0}'
     expect(parseQuantifyTrigger(content)).toBeNull()
   })
 
@@ -29,7 +33,8 @@ describe('parseQuantifyTrigger', () => {
 
 describe('stripQuantifyTrigger', () => {
   it('removes [QUANTIFY_TRIGGER] line from content', () => {
-    const content = '回答內容\n[QUANTIFY_TRIGGER]: {"topic":"t","context":"c"}\n[GAPS_STATUS]: {"completed":[],"current":"t"}'
+    const content =
+      '回答內容\n[QUANTIFY_TRIGGER]: {"topic":"t","context":"c","original_text":"原文","formula_hint":"scale_impact"}\n[GAPS_STATUS]: {"completed":[],"skipped":[],"current":"t","current_turns":1}'
     const stripped = stripQuantifyTrigger(content)
     expect(stripped).not.toContain('[QUANTIFY_TRIGGER]')
     expect(stripped).toContain('回答內容')
@@ -37,18 +42,33 @@ describe('stripQuantifyTrigger', () => {
   })
 
   it('returns content unchanged when no trigger present', () => {
-    const content = '普通回答\n[GAPS_STATUS]: {"completed":[],"current":"gap1"}'
+    const content =
+      '普通回答\n[GAPS_STATUS]: {"completed":[],"skipped":[],"current":"gap1","current_turns":0}'
     expect(stripQuantifyTrigger(content)).toBe(content)
   })
 })
 
 describe('parseGapStatus', () => {
-  it('parses valid [GAPS_STATUS] at end of content', () => {
-    const content = '回答\n[GAPS_STATUS]: {"completed":["gap1","gap2"],"current":"gap3"}'
+  it('parses valid [GAPS_STATUS] with all new fields', () => {
+    const content =
+      '回答\n[GAPS_STATUS]: {"completed":["gap1","gap2"],"skipped":["gap0"],"current":"gap3","current_turns":2}'
     const result = parseGapStatus(content)
     expect(result).not.toBeNull()
     expect(result!.completed).toEqual(['gap1', 'gap2'])
+    expect(result!.skipped).toEqual(['gap0'])
     expect(result!.current).toBe('gap3')
+    expect(result!.current_turns).toBe(2)
+  })
+
+  it('is backward-compatible: defaults new fields when absent', () => {
+    const content =
+      '回答\n[GAPS_STATUS]: {"completed":["gap1","gap2"],"current":"gap3"}'
+    const result = parseGapStatus(content)
+    expect(result).not.toBeNull()
+    expect(result!.completed).toEqual(['gap1', 'gap2'])
+    expect(result!.skipped).toEqual([])
+    expect(result!.current).toBe('gap3')
+    expect(result!.current_turns).toBe(0)
   })
 
   it('returns null when no [GAPS_STATUS] present', () => {
@@ -58,7 +78,8 @@ describe('parseGapStatus', () => {
 
 describe('stripGapStatus', () => {
   it('removes [GAPS_STATUS] line from content', () => {
-    const content = '回答\n[GAPS_STATUS]: {"completed":[],"current":"g"}'
+    const content =
+      '回答\n[GAPS_STATUS]: {"completed":[],"skipped":[],"current":"g","current_turns":0}'
     const stripped = stripGapStatus(content)
     expect(stripped).not.toContain('[GAPS_STATUS]')
     expect(stripped).toContain('回答')
@@ -98,5 +119,34 @@ describe('buildCareerAdvisorPrompt — structured opening', () => {
     const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
     expect(prompt).not.toContain('不要每次都加')
     expect(prompt).toContain('必須')
+  })
+
+  it('prompt includes MCQ instruction', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('選擇題')
+    expect(prompt).toContain('A.')
+  })
+
+  it('prompt includes 3-turn exit mechanism', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('3 輪退出機制')
+    expect(prompt).toContain('skipped')
+  })
+
+  it('prompt forbids placeholder tokens', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('嚴禁佔位符')
+  })
+
+  it('QUANTIFY_TRIGGER format includes original_text and formula_hint', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('original_text')
+    expect(prompt).toContain('formula_hint')
+  })
+
+  it('GAPS_STATUS format includes skipped and current_turns', () => {
+    const prompt = buildCareerAdvisorPrompt(mockPersona, mockResume)
+    expect(prompt).toContain('"skipped"')
+    expect(prompt).toContain('current_turns')
   })
 })
