@@ -1,10 +1,20 @@
-import { spawn } from 'child_process'
-import path from 'path'
+import { spawn, spawnSync } from 'child_process'
 
-// Use absolute path to avoid PATH issues when spawned from Next.js server
-const PYTHON = process.platform === 'win32'
-  ? 'C:\\Python314\\python.exe'
-  : '/Library/Frameworks/Python.framework/Versions/3.14/bin/python3'
+// Resolve Python executable: env override → candidates in PATH order
+function resolvePython(): string {
+  if (process.env.PYTHON_PATH) return process.env.PYTHON_PATH
+  const candidates = process.platform === 'win32'
+    ? ['python', 'python3', 'py']
+    : ['python3', 'python']
+  for (const cmd of candidates) {
+    const result = spawnSync(cmd, ['-c', 'from markitdown import MarkItDown'], { encoding: 'utf-8' })
+    if (result.status === 0) return cmd
+  }
+  // Fall back to first candidate and let the caller surface the error
+  return candidates[0]
+}
+
+const PYTHON = resolvePython()
 
 const SCRIPT = `
 import sys, tempfile, os
@@ -29,8 +39,8 @@ finally:
 
 export async function parsePdfToMarkdown(buffer: Buffer): Promise<string> {
   return new Promise((resolve, reject) => {
-    // stderr is intentionally ignored — pdfminer emits FontBBox warnings that are harmless
-    const py = spawn(PYTHON, ['-W', 'ignore', '-c', SCRIPT], {
+    // -X utf8 forces UTF-8 I/O on Windows; stderr ignored (pdfminer FontBBox warnings are harmless)
+    const py = spawn(PYTHON, ['-X', 'utf8', '-W', 'ignore', '-c', SCRIPT], {
       stdio: ['pipe', 'pipe', 'ignore'],
     })
 

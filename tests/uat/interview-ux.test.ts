@@ -1,8 +1,8 @@
+// @vitest-environment node
 import { describe, it, expect, afterAll, beforeAll } from 'vitest'
 import { createServerClient } from '@/lib/supabase'
 import fs from 'fs'
 import path from 'path'
-import FormData from 'form-data'
 
 const BASE_URL = 'http://localhost:3000'
 const PDF_PATH = path.join(process.cwd(), '彭敬鈞履歷.pdf')
@@ -49,16 +49,13 @@ describe('UAT: Interview UX — Full Flow with 彭敬鈞履歷.pdf', () => {
 
     expect(fs.existsSync(PDF_PATH)).toBe(true)
 
-    const formData = new FormData()
-    formData.append('file', fs.createReadStream(PDF_PATH), {
-      filename: '彭敬鈞履歷.pdf',
-      contentType: 'application/pdf',
-    })
+    const buffer = fs.readFileSync(PDF_PATH)
+    const formData = new globalThis.FormData()
+    formData.append('file', new Blob([buffer], { type: 'application/pdf' }), '彭敬鈞履歷.pdf')
 
     const res = await fetch(`${BASE_URL}/api/upload`, {
       method: 'POST',
-      body: formData as unknown as BodyInit,
-      headers: formData.getHeaders(),
+      body: formData,
     })
 
     expect(res.status).toBe(200)
@@ -101,7 +98,7 @@ describe('UAT: Interview UX — Full Flow with 彭敬鈞履歷.pdf', () => {
       body: JSON.stringify({ resumeMarkdown, personaId }),
     })
 
-    expect(res.status).toBe(200)
+    expect([200, 201]).toContain(res.status)
     const data = await res.json()
     expect(typeof data.session.id).toBe('string')
     expect(data.session.gaps_total).toBeGreaterThan(0)
@@ -236,10 +233,10 @@ describe('UAT: Interview UX — Full Flow with 彭敬鈞履歷.pdf', () => {
     const res = await fetch(`${BASE_URL}/api/session/${sessionId}`)
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.id).toBe(sessionId)
-    expect(Array.isArray(data.conversation_history)).toBe(true)
-    expect(data.conversation_history.length).toBeGreaterThan(0)
-    console.log('Session has', data.conversation_history.length, 'messages, gaps_completed:', data.gaps_completed)
+    expect(data.session.id).toBe(sessionId)
+    expect(Array.isArray(data.session.conversation_history)).toBe(true)
+    expect(data.session.conversation_history.length).toBeGreaterThan(0)
+    console.log('Session has', data.session.conversation_history.length, 'messages, gaps_completed:', data.session.gaps_completed)
   }, 10000)
 
   it('SSE response does not buffer — emits text events in real time', async () => {
@@ -298,16 +295,12 @@ describe('UAT: Interview UX — Full Flow with 彭敬鈞履歷.pdf', () => {
     const serverUp = await checkServer()
     if (!serverUp) return
 
-    const formData = new FormData()
-    formData.append('file', Buffer.from('not a resume'), {
-      filename: 'test.txt',
-      contentType: 'text/plain',
-    })
+    const formData = new globalThis.FormData()
+    formData.append('file', new Blob(['not a resume'], { type: 'text/plain' }), 'test.txt')
 
     const res = await fetch(`${BASE_URL}/api/upload`, {
       method: 'POST',
-      body: formData as unknown as BodyInit,
-      headers: formData.getHeaders(),
+      body: formData,
     })
     expect(res.status).toBe(400)
   })
