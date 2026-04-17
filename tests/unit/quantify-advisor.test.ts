@@ -20,7 +20,7 @@ describe('buildQuantifyAdvisorPrompt', () => {
 
   it('includes 5-round limit in prompt', () => {
     const prompt = buildQuantifyAdvisorPrompt('topic', 'ctx', 2)
-    expect(prompt).toContain('5')
+    expect(prompt).toContain('共 5 輪')
   })
 
   it('prohibits fabrication in prompt', () => {

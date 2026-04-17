@@ -34,6 +34,7 @@ export function QuantifyModal({
   const [result, setResult] = useState<QuantifyResult | null>(null)
   const [isComplete, setIsComplete] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -44,7 +45,10 @@ export function QuantifyModal({
 
   // Reset and auto-start when modal opens
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) {
+      abortRef.current?.abort()
+      return
+    }
     setRound(1)
     setMessages([])
     setInputValue('')
@@ -53,11 +57,12 @@ export function QuantifyModal({
     setResult(null)
     setIsComplete(false)
     // Auto-fetch AI opener using context as the seed message
-    fetchAutoStart()
+    abortRef.current = new AbortController()
+    fetchAutoStart(abortRef.current.signal)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
-  async function fetchAutoStart() {
+  async function fetchAutoStart(signal: AbortSignal) {
     setIsLoading(true)
     try {
       const res = await fetch('/api/quantify', {
@@ -71,17 +76,20 @@ export function QuantifyModal({
           roundNumber: 1,
           userMessage: context || topic,
         }),
+        signal,
       })
+      if (signal.aborted) return
       if (!res.ok) throw new Error('auto-start failed')
       const data = await res.json()
       setMessages([{ role: 'assistant', content: data.assistantMessage }])
       setEntryId(data.entryId)
       setRound(2)
-    } catch {
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') return
       setMessages([{ role: 'assistant', content: `你提到了「${context || topic}」，請告訴我更多細節，我來幫你找出具體數字。` }])
       setRound(1)
     } finally {
-      setIsLoading(false)
+      if (!signal.aborted) setIsLoading(false)
     }
   }
 
@@ -92,7 +100,8 @@ export function QuantifyModal({
 
     const userMessage = inputValue.trim()
     setInputValue('')
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
+    const updatedMessages: Message[] = [...messages, { role: 'user' as const, content: userMessage }]
+    setMessages(updatedMessages)
     setIsLoading(true)
 
     try {
@@ -103,7 +112,7 @@ export function QuantifyModal({
           sessionId,
           topic,
           context,
-          messages,
+          messages: updatedMessages.slice(0, -1),
           roundNumber: round,
           userMessage,
           entryId: entryId ?? undefined,
@@ -121,7 +130,7 @@ export function QuantifyModal({
         setIsComplete(true)
         setResult(data.result)
       } else {
-        setRound((r) => r + 1)
+        setRound((r) => Math.min(r + 1, 5))
       }
     } catch {
       setMessages((prev) => [
