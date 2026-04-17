@@ -1,7 +1,18 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Lightbulb, X, Loader2 } from 'lucide-react'
+import {
+  Target,
+  X,
+  Loader2,
+  Clock,
+  Users,
+  TrendingDown,
+  TrendingUp,
+  BarChart2,
+  CheckCircle2,
+  LucideIcon,
+} from 'lucide-react'
 import { FormulaTemplate, FormulaVariable, QuantifyEntry } from '@/lib/agents/quantify-advisor'
 import { QuantifyTrigger } from '@/lib/agents/career-advisor'
 
@@ -65,6 +76,26 @@ const SAFETY_NET_FORMULAS: FormulaTemplate[] = [
     ],
   },
 ]
+
+function getScenarioLabel(formulaId: string): { label: string; subtitle: string; icon: LucideIcon } {
+  const map: Record<string, { label: string; subtitle: string; icon: LucideIcon }> = {
+    time_reduction: { label: '節省了時間', subtitle: '例：從 3 小時縮短到 30 分鐘', icon: Clock },
+    scale_impact: { label: '影響了很多人', subtitle: '例：服務了 500 名用戶', icon: Users },
+    cost_savings: { label: '節省了成本', subtitle: '例：節省了 20% 的運算費用', icon: TrendingDown },
+    percentage_improvement: { label: '整體改善幅度', subtitle: '例：效率提升了 30%', icon: TrendingUp },
+  }
+  return map[formulaId] ?? { label: '其他改善', subtitle: '輸入你知道的數字', icon: BarChart2 }
+}
+
+function getVariablePrompt(formulaId: string): string {
+  const map: Record<string, string> = {
+    time_reduction: '填入時間，我幫你算出提升比例',
+    scale_impact: '填入人數或件數',
+    cost_savings: '填入成本數字，我幫你算出節省比例',
+    percentage_improvement: '直接填入提升的百分比',
+  }
+  return map[formulaId] ?? '填入數字'
+}
 
 function computeResult(formula: string, variables: Record<string, string>): number | null {
   try {
@@ -247,8 +278,8 @@ export function QuantifySidebar({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/10">
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-yellow-500 shrink-0" />
-            <span className="font-semibold text-ink">量化軍師</span>
+            <Target className="w-5 h-5 text-primary shrink-0" />
+            <span className="font-semibold text-ink">把成就變成數字</span>
           </div>
           <button
             onClick={onDismiss}
@@ -260,13 +291,16 @@ export function QuantifySidebar({
         </div>
 
         <div className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
-          {/* Original text / context */}
+          {/* Context display */}
           {trigger && (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {isSafetyNet ? (
-                <p className="text-sm font-medium text-ink">
-                  這個主題沒有出現數字，以下是常見的 KPI，哪個最接近？
-                </p>
+                <>
+                  <p className="text-sm font-medium text-ink">你描述的這個成就很棒！</p>
+                  <p className="text-sm text-ink/60">
+                    試試看能不能加上一個數字，讓面試官有更具體的印象：
+                  </p>
+                </>
               ) : (
                 <>
                   <p className="text-sm text-ink/60">
@@ -275,10 +309,9 @@ export function QuantifySidebar({
                       「{trigger.original_text}」
                     </span>
                   </p>
-                  {trigger.context && (
-                    <p className="text-xs text-ink/50">成就摘要：{trigger.context}</p>
-                  )}
-                  <p className="text-sm font-medium text-ink mt-3">選擇最適合的量化公式：</p>
+                  <p className="text-sm text-ink/70 mt-2">
+                    這個成就能用數字來表達嗎？選一個最接近你情況的：
+                  </p>
                 </>
               )}
             </div>
@@ -289,51 +322,63 @@ export function QuantifySidebar({
             <div className="space-y-3 animate-pulse">
               <div className="h-4 bg-secondary/10 rounded w-3/4" />
               <div className="h-4 bg-secondary/10 rounded w-1/2" />
-              <div className="h-10 bg-secondary/10 rounded" />
-              <div className="h-10 bg-secondary/10 rounded" />
+              <div className="h-14 bg-secondary/10 rounded" />
+              <div className="h-14 bg-secondary/10 rounded" />
             </div>
           )}
 
-          {/* Formula radio buttons */}
+          {/* Scenario cards */}
           {!isLoading && formulas.length > 0 && (
             <div className="space-y-2">
-              {formulas.map((f) => (
-                <label
-                  key={f.id}
-                  className={`
-                    flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer
-                    transition-colors
-                    ${
-                      selectedFormulaId === f.id
-                        ? 'border-primary bg-primary/5 text-primary'
-                        : 'border-secondary/20 text-ink hover:border-secondary/50'
-                    }
-                  `}
-                >
-                  <input
-                    type="radio"
-                    name="formula"
-                    value={f.id}
-                    checked={selectedFormulaId === f.id}
-                    onChange={() => handleFormulaSelect(f)}
-                    className="accent-primary"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium">{f.label}</span>
-                    <span className="text-xs text-ink/40 ml-2">{f.traceFormula}</span>
-                  </div>
-                </label>
-              ))}
+              {formulas.map((f) => {
+                const scenario = getScenarioLabel(f.id)
+                const Icon = scenario.icon
+                const isSelected = selectedFormulaId === f.id
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => handleFormulaSelect(f)}
+                    className={`
+                      w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left
+                      transition-colors cursor-pointer
+                      ${
+                        isSelected
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-secondary/20 bg-white text-ink hover:border-secondary/50'
+                      }
+                    `}
+                  >
+                    <Icon
+                      className={`w-5 h-5 shrink-0 ${isSelected ? 'text-primary' : 'text-ink/40'}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${isSelected ? 'text-primary' : 'text-ink'}`}>
+                        {scenario.label}
+                      </p>
+                      <p className={`text-xs mt-0.5 ${isSelected ? 'text-primary/60' : 'text-ink/40'}`}>
+                        {scenario.subtitle}
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           )}
 
           {/* Variable fill-in fields */}
           {!isLoading && selectedFormula && (
             <div className="space-y-3">
+              <p className="text-xs text-ink/50">{getVariablePrompt(selectedFormulaId)}</p>
               <div className="grid grid-cols-2 gap-3">
                 {selectedFormula.variables.map((v: FormulaVariable) => (
                   <div key={v.key} className="space-y-1">
-                    <label className="text-xs font-medium text-ink/70">{v.label}</label>
+                    <label className="text-xs font-medium text-ink/70">
+                      {v.label}
+                      {v.estimated && (
+                        <span className="ml-1 text-ink/30 font-normal">（AI 估算）</span>
+                      )}
+                    </label>
                     <input
                       type="number"
                       value={variableValues[v.key] ?? ''}
@@ -352,8 +397,13 @@ export function QuantifySidebar({
           {/* Preview */}
           {previewText && (
             <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-              <p className="text-xs text-green-700 font-medium mb-1">預覽</p>
-              <p className="text-sm text-green-600 font-semibold">{previewText}</p>
+              <div className="flex items-center gap-1.5 mb-1">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                <p className="text-xs text-green-700 font-medium">你的履歷可以加入：</p>
+              </div>
+              <p className="text-sm text-green-800 font-semibold">
+                &quot;{trigger?.topic} — {previewText}&quot;
+              </p>
             </div>
           )}
         </div>
@@ -368,15 +418,15 @@ export function QuantifySidebar({
                        flex items-center justify-center gap-2"
           >
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-            確認儲存
+            儲存這個數字
           </button>
           <button
             onClick={handleSkip}
             disabled={isSubmitting}
-            className="flex-1 py-2.5 rounded-xl text-sm text-ink/60 hover:text-ink
-                       hover:bg-surface transition-colors disabled:opacity-40 border border-secondary/20"
+            className="flex-1 py-2.5 rounded-xl text-sm text-ink/50 hover:text-ink
+                       transition-colors disabled:opacity-40"
           >
-            沒辦法量化，略過
+            這個真的沒辦法量化
           </button>
         </div>
       </div>
