@@ -134,7 +134,7 @@ export function ChatInterface({
           const lines = event.trim().split('\n')
           const eventType = lines.find((l) => l.startsWith('event:'))?.slice(7).trim()
           const dataLine = lines.find((l) => l.startsWith('data:'))?.slice(6)
-          if (!dataLine) continue
+          if (dataLine === undefined) continue
 
           if (eventType === 'text') {
             const chunk: string = JSON.parse(dataLine)
