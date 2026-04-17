@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import {
-  buildQuantifyAdvisorPrompt,
-  parseQuantifyResponse,
   QuantifyEntry,
   QuantifyResult,
 } from '@/lib/agents/quantify-advisor'
@@ -63,87 +61,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Assign or reuse entry ID
-  const currentEntryId = roundNumber === 1
-    ? crypto.randomUUID()
-    : (entryId ?? crypto.randomUUID())
-
-  // Build messages for OpenAI
-  const systemPrompt = buildQuantifyAdvisorPrompt(topic, context, roundNumber)
-  const openaiMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-    { role: 'system', content: systemPrompt },
-    ...messages.map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-    { role: 'user', content: userMessage },
-  ]
-
-  let rawContent: string
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: openaiMessages,
-      temperature: 0.3,
-    })
-    rawContent = response.choices[0].message.content ?? ''
-  } catch (err) {
-    console.error('Quantify OpenAI error:', err)
-    return NextResponse.json({ error: 'LLM call failed' }, { status: 500 })
-  }
-
-  const { outcome } = parseQuantifyResponse(rawContent, roundNumber)
-  let { cleanContent } = parseQuantifyResponse(rawContent, roundNumber)
-
-  // Fallback: if LLM returned only a tag with no human-readable text, provide a neutral message
-  if (!cleanContent && roundNumber === 5) {
-    cleanContent = outcome.type === 'result'
-      ? '好的，我已整理出您的量化數字。'
-      : '感謝您的分享，目前難以找到精確數字，但您的描述已很有說服力。'
-  }
-
-  const isComplete = roundNumber === 5
-  let result: QuantifyResult | null = null
-
-  if (isComplete) {
-    if (outcome.type === 'result') {
-      result = outcome.data
-    }
-
-    // Build and save the QuantifyEntry to Supabase
-    const roundHistory = [
-      ...messages,
-      { role: 'user' as const, content: userMessage },
-      { role: 'assistant' as const, content: cleanContent },
-    ]
-
-    const newEntry: QuantifyEntry = {
-      id: currentEntryId,
-      topic,
-      context,
-      result,
-      rounds: roundHistory,
-      completedAt: new Date().toISOString(),
-    }
-
-    const existingData = (session.quantify_data ?? []) as QuantifyEntry[]
-    const { error: updateError } = await db.from('sessions').update({
-      quantify_data: [...existingData, newEntry],
-      updated_at: new Date().toISOString(),
-    }).eq('id', sessionId)
-
-    if (updateError) {
-      console.error('Failed to save quantify entry:', updateError)
-      return NextResponse.json({ error: 'Failed to save quantify data' }, { status: 500 })
-    }
-  }
-
-  const responseBody: QuantifyResponse = {
-    assistantMessage: cleanContent,
-    roundNumber,
-    isComplete,
-    result,
-    entryId: currentEntryId,
-  }
-
-  return NextResponse.json(responseBody)
+  // TODO: Step 4 - Rewrite this route to use new formula suggestion API
+  return NextResponse.json(
+    { error: 'This endpoint will be rewritten in Step 4' },
+    { status: 501 }
+  )
 }
