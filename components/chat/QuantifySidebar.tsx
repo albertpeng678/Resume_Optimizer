@@ -63,13 +63,13 @@ const SAFETY_NET_FORMULAS: FormulaTemplate[] = [
     variables: [
       {
         key: 'before',
-        label: '優化前（數值）',
+        label: '優化前（任意單位）',
         placeholder: '例如：60',
         estimated: '',
       },
       {
         key: 'after',
-        label: '優化後（數值）',
+        label: '優化後（任意單位）',
         placeholder: '例如：10',
         estimated: '',
       },
