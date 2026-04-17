@@ -117,3 +117,21 @@ describe('parseQuantifyResponse - cleanContent invariants', () => {
     expect(cleanContent).toBe('有內容')
   })
 })
+
+describe('buildQuantifyAdvisorPrompt — bounded examples', () => {
+  it('prompt contains Round 1 open format rule', () => {
+    const prompt = buildQuantifyAdvisorPrompt('跨部門協作', '用戶說他協調了很多部門', 1)
+    expect(prompt).toContain('Round 1')
+    expect(prompt).toContain('直接引用')
+  })
+
+  it('prompt requires examples in every round', () => {
+    const prompt = buildQuantifyAdvisorPrompt('跨部門協作', '用戶說他協調了很多部門', 2)
+    expect(prompt).toContain('範例')
+  })
+
+  it('prompt forbids open-ended questions', () => {
+    const prompt = buildQuantifyAdvisorPrompt('跨部門協作', '用戶說他協調了很多部門', 1)
+    expect(prompt).toContain('禁止')
+  })
+})

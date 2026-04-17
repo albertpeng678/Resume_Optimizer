@@ -42,18 +42,48 @@ export function QuantifyModal({
     }
   }, [messages])
 
-  // Reset state when modal opens
+  // Reset and auto-start when modal opens
   useEffect(() => {
-    if (isOpen) {
-      setRound(1)
-      setMessages([])
-      setInputValue('')
-      setIsLoading(false)
-      setEntryId(null)
-      setResult(null)
-      setIsComplete(false)
-    }
+    if (!isOpen) return
+    setRound(1)
+    setMessages([])
+    setInputValue('')
+    setIsLoading(false)
+    setEntryId(null)
+    setResult(null)
+    setIsComplete(false)
+    // Auto-fetch AI opener using context as the seed message
+    fetchAutoStart()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
+
+  async function fetchAutoStart() {
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/quantify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          topic,
+          context,
+          messages: [],
+          roundNumber: 1,
+          userMessage: context || topic,
+        }),
+      })
+      if (!res.ok) throw new Error('auto-start failed')
+      const data = await res.json()
+      setMessages([{ role: 'assistant', content: data.assistantMessage }])
+      setEntryId(data.entryId)
+      setRound(2)
+    } catch {
+      setMessages([{ role: 'assistant', content: `你提到了「${context || topic}」，請告訴我更多細節，我來幫你找出具體數字。` }])
+      setRound(1)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (!isOpen) return null
 
@@ -85,7 +115,7 @@ export function QuantifyModal({
       const data = await res.json()
       setMessages((prev) => [...prev, { role: 'assistant', content: data.assistantMessage }])
 
-      if (round === 1) setEntryId(data.entryId)
+      if (!entryId) setEntryId(data.entryId)
 
       if (data.isComplete) {
         setIsComplete(true)
