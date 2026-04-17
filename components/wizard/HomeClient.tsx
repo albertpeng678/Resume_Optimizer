@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { ProgressBar } from '@/components/wizard/ProgressBar'
@@ -39,6 +39,15 @@ export function HomeClient({ careers }: HomeClientProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAllCareers, setShowAllCareers] = useState(false)
+  const [resumeSessionId, setResumeSessionId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const savedId = localStorage.getItem('lastSessionId')
+    const savedStatus = localStorage.getItem('lastSessionStatus')
+    if (savedId && savedStatus === 'in_progress') {
+      setResumeSessionId(savedId)
+    }
+  }, [])
 
   async function handleUploadComplete(markdown: string) {
     setResumeMarkdown(markdown)
@@ -72,6 +81,8 @@ export function HomeClient({ careers }: HomeClientProps) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to create session')
+      localStorage.setItem('lastSessionId', data.session.id)
+      localStorage.setItem('lastSessionStatus', 'in_progress')
       router.push(`/session/${data.session.id}`)
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Failed to create session'
@@ -84,6 +95,33 @@ export function HomeClient({ careers }: HomeClientProps) {
     <div className="max-w-2xl w-full mx-auto px-4 pt-16 pb-12">
     <div className="space-y-8">
       <ProgressBar currentStep={step} />
+
+      {resumeSessionId && step === 1 && (
+        <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-ink">你有一個未完成的訪談</p>
+            <p className="text-xs text-ink/50 mt-0.5">點擊繼續上次進度</p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => router.push(`/session/${resumeSessionId}`)}
+              className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
+            >
+              繼續訪談
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem('lastSessionId')
+                localStorage.removeItem('lastSessionStatus')
+                setResumeSessionId(null)
+              }}
+              className="px-3 py-1.5 text-ink/50 rounded-lg text-xs hover:text-ink/70 transition-colors"
+            >
+              略過
+            </button>
+          </div>
+        </div>
+      )}
 
       {step === 1 && (
         <>
