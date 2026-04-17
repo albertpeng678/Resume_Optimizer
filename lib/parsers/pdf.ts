@@ -2,7 +2,9 @@ import { spawn } from 'child_process'
 import path from 'path'
 
 // Use absolute path to avoid PATH issues when spawned from Next.js server
-const PYTHON = '/Library/Frameworks/Python.framework/Versions/3.14/bin/python3'
+const PYTHON = process.platform === 'win32'
+  ? 'C:\\Python314\\python.exe'
+  : '/Library/Frameworks/Python.framework/Versions/3.14/bin/python3'
 
 const SCRIPT = `
 import sys, tempfile, os
