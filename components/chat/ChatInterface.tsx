@@ -2,20 +2,16 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Send, Sparkles, FileText, Loader2, PlusCircle, ArrowDown } from 'lucide-react'
+import { Send, FileText, Loader2, ArrowDown } from 'lucide-react'
 import { MessageBubble } from './MessageBubble'
 import { InterviewProgress } from './InterviewProgress'
-import { QuantifyModal } from './QuantifyModal'
+import { QuantifySidebar } from './QuantifySidebar'
 import { QuantifyEntry } from '@/lib/agents/quantify-advisor'
+import { QuantifyTrigger } from '@/lib/agents/career-advisor'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
-}
-
-interface QuantifyTrigger {
-  topic: string
-  context: string
 }
 
 interface ChatInterfaceProps {
@@ -47,9 +43,10 @@ export function ChatInterface({
   const [gapsCompleted, setGapsCompleted] = useState(initialGapsCompleted)
   const [quantifyData, setQuantifyData] = useState<QuantifyEntry[]>(initialQuantifyData)
   const [quantifyTrigger, setQuantifyTrigger] = useState<QuantifyTrigger | null>(null)
-  const [showQuantifyModal, setShowQuantifyModal] = useState(false)
-  const [manualQuantifyOpen, setManualQuantifyOpen] = useState(false)
+  const [safetyNetTopic, setSafetyNetTopic] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+
+  const prevGapsCompletedRef = useRef(initialGapsCompleted)
   const [showScrollButton, setShowScrollButton] = useState(false)
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -57,9 +54,6 @@ export function ChatInterface({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isComplete = gapsCompleted >= gapsTotal && gapsTotal > 0
-  const currentTopicName = gapsCompleted < interviewGaps.length
-    ? interviewGaps[gapsCompleted]
-    : undefined
 
   function isNearBottom(): boolean {
     const el = containerRef.current
@@ -88,12 +82,14 @@ export function ChatInterface({
   const syncSession = useCallback(async () => {
     try {
       const res = await fetch(`/api/session/${sessionId}`)
-      if (!res.ok) return
+      if (!res.ok) return null
       const data = await res.json()
       setGapsCompleted(data.gaps_completed ?? 0)
       setQuantifyData(data.quantify_data ?? [])
+      return data.gaps_completed ?? 0
     } catch (err) {
       console.warn('syncSession failed:', err)
+      return null
     }
   }, [sessionId])
 
@@ -160,21 +156,24 @@ export function ChatInterface({
       setStreamingContent('')
     } finally {
       setIsStreaming(false)
-      await syncSession()
+      const newGapsCompleted = await syncSession()
+      // Safety net: a gap completed but no quantify trigger fired
+      setQuantifyTrigger((currentTrigger) => {
+        if (!currentTrigger && newGapsCompleted !== null && newGapsCompleted > prevGapsCompletedRef.current) {
+          // A gap was completed without a quantify trigger — use safety net
+          const currentTopicName = interviewGaps[prevGapsCompletedRef.current] ?? '最近討論的主題'
+          setSafetyNetTopic(currentTopicName)
+        }
+        prevGapsCompletedRef.current = newGapsCompleted ?? prevGapsCompletedRef.current
+        return currentTrigger
+      })
       inputRef.current?.focus()
     }
   }
 
   function handleQuantifyComplete(entry: QuantifyEntry | null) {
     if (entry) setQuantifyData((prev) => [...prev, entry])
-    setShowQuantifyModal(false)
     setQuantifyTrigger(null)
-    inputRef.current?.focus()
-  }
-
-  function handleManualQuantifyComplete(entry: QuantifyEntry | null) {
-    if (entry) setQuantifyData((prev) => [...prev, entry])
-    setManualQuantifyOpen(false)
     inputRef.current?.focus()
   }
 
@@ -244,34 +243,6 @@ export function ChatInterface({
         </button>
       )}
 
-      {/* Quantify trigger banner */}
-      {quantifyTrigger && !isStreaming && !showQuantifyModal && (
-        <div className="px-4 pb-2">
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                <p className="text-sm text-amber-800">需要幫你找出具體數字嗎？</p>
-              </div>
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => setShowQuantifyModal(true)}
-                  className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-600 transition-colors"
-                >
-                  開始量化訪談
-                </button>
-                <button
-                  onClick={() => setQuantifyTrigger(null)}
-                  className="px-3 py-1.5 text-amber-700 rounded-lg text-xs hover:bg-amber-100 transition-colors"
-                >
-                  略過
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Generate resume CTA */}
       {isComplete && !isStreaming && (
         <div className="px-4 pb-2">
@@ -295,16 +266,6 @@ export function ChatInterface({
       {/* Input */}
       <div className="bg-white border-t border-secondary/20 px-4 py-3">
         <div className="max-w-2xl mx-auto flex gap-2 items-center">
-          <button
-            onClick={() => setManualQuantifyOpen(true)}
-            disabled={isStreaming}
-            title="手動觸發量化訪談"
-            className="flex items-center gap-1 px-2 py-2 text-secondary hover:text-primary
-                       transition-colors disabled:opacity-40 shrink-0"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span className="text-xs hidden sm:inline">量化數字</span>
-          </button>
           <input
             ref={inputRef}
             type="text"
@@ -328,26 +289,24 @@ export function ChatInterface({
         </div>
       </div>
 
-      {/* Auto-triggered Quantify Modal */}
-      {quantifyTrigger && (
-        <QuantifyModal
-          isOpen={showQuantifyModal}
-          topic={quantifyTrigger.topic}
-          context={quantifyTrigger.context}
-          sessionId={sessionId}
-          onComplete={handleQuantifyComplete}
-          onClose={() => setShowQuantifyModal(false)}
-        />
-      )}
-
-      {/* Manually-triggered Quantify Modal */}
-      <QuantifyModal
-        isOpen={manualQuantifyOpen}
-        topic={currentTopicName || '工作成就'}
-        context={`使用者手動觸發量化訪談，請詢問他想量化哪個成就（主題：${currentTopicName || '工作成就'}）`}
+      <QuantifySidebar
+        trigger={quantifyTrigger ?? (
+          safetyNetTopic ? {
+            topic: safetyNetTopic,
+            context: `使用者剛完成了關於「${safetyNetTopic}」的討論，嘗試幫助量化這個成就`,
+            original_text: '',
+            formula_hint: 'safety_net',
+          } : null
+        )}
         sessionId={sessionId}
-        onComplete={handleManualQuantifyComplete}
-        onClose={() => setManualQuantifyOpen(false)}
+        onComplete={(entry) => {
+          handleQuantifyComplete(entry)
+          setSafetyNetTopic(null)
+        }}
+        onDismiss={() => {
+          setQuantifyTrigger(null)
+          setSafetyNetTopic(null)
+        }}
       />
     </div>
   )
