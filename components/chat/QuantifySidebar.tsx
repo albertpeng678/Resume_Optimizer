@@ -63,14 +63,14 @@ const SAFETY_NET_FORMULAS: FormulaTemplate[] = [
     variables: [
       {
         key: 'before',
-        label: '優化前（任意單位）',
-        placeholder: '例如：10',
+        label: '優化前（數值）',
+        placeholder: '例如：60',
         estimated: '',
       },
       {
         key: 'after',
-        label: '優化後（任意單位）',
-        placeholder: '例如：3',
+        label: '優化後（數值）',
+        placeholder: '例如：10',
         estimated: '',
       },
     ],
@@ -131,6 +131,7 @@ export function QuantifySidebar({
   const [selectedFormulaId, setSelectedFormulaId] = useState<string>('')
   const [variableValues, setVariableValues] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [timeUnit, setTimeUnit] = useState<string>('分鐘')
 
   const isSafetyNet = trigger?.formula_hint === 'safety_net'
   const isVisible = trigger !== null
@@ -202,20 +203,9 @@ export function QuantifySidebar({
       setIsSubmitting(false)
       return
     }
-
-    if (isSafetyNet) {
-      setFormulas(SAFETY_NET_FORMULAS)
-      setSelectedFormulaId(SAFETY_NET_FORMULAS[0].id)
-      const initVars: Record<string, string> = {}
-      for (const v of SAFETY_NET_FORMULAS[0].variables) {
-        initVars[v.key] = v.estimated ?? ''
-      }
-      setVariableValues(initVars)
-      setIsLoading(false)
-    } else {
-      fetchFormulas(trigger)
-    }
-  }, [trigger, isSafetyNet, fetchFormulas])
+    // Always call fetchFormulas — safety net mode also uses API with context
+    fetchFormulas(trigger)
+  }, [trigger, fetchFormulas])
 
   function handleFormulaSelect(formula: FormulaTemplate) {
     setSelectedFormulaId(formula.id)
@@ -296,9 +286,13 @@ export function QuantifySidebar({
             <div className="space-y-1">
               {isSafetyNet ? (
                 <>
-                  <p className="text-sm font-medium text-ink">你描述的這個成就很棒！</p>
                   <p className="text-sm text-ink/60">
-                    試試看能不能加上一個數字，讓面試官有更具體的印象：
+                    你剛才聊到了
+                    <span className="font-medium text-ink">「{trigger.topic}」</span>，
+                    這個成就能加上一個數字嗎？
+                  </p>
+                  <p className="text-sm text-ink/50 mt-1">
+                    選一個最接近你情況的：
                   </p>
                 </>
               ) : (
@@ -370,26 +364,54 @@ export function QuantifySidebar({
           {!isLoading && selectedFormula && (
             <div className="space-y-3">
               <p className="text-xs text-ink/50">{getVariablePrompt(selectedFormulaId)}</p>
-              <div className="grid grid-cols-2 gap-3">
-                {selectedFormula.variables.map((v: FormulaVariable) => (
-                  <div key={v.key} className="space-y-1">
-                    <label className="text-xs font-medium text-ink/70">
-                      {v.label}
-                      {v.estimated && (
-                        <span className="ml-1 text-ink/30 font-normal">（AI 估算）</span>
-                      )}
-                    </label>
-                    <input
-                      type="number"
-                      value={variableValues[v.key] ?? ''}
-                      onChange={(e) => handleVariableChange(v.key, e.target.value)}
-                      placeholder={v.placeholder}
-                      className="w-full px-3 py-2 text-sm border border-secondary/30 rounded-lg
-                                 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
-                                 text-ink placeholder:text-ink/30"
-                    />
+              {/* Time unit selector for time_reduction formula */}
+              {selectedFormulaId === 'time_reduction' && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-ink/50">時間單位：</span>
+                    {['秒', '分鐘', '小時', '天'].map((u) => (
+                      <button
+                        key={u}
+                        type="button"
+                        onClick={() => setTimeUnit(u)}
+                        className={`px-2.5 py-1 text-xs rounded-lg border transition-colors cursor-pointer
+                          ${timeUnit === u
+                            ? 'border-primary bg-primary/10 text-primary font-medium'
+                            : 'border-secondary/20 text-ink/50 hover:border-secondary/50'}`}
+                      >
+                        {u}
+                      </button>
+                    ))}
                   </div>
-                ))}
+                  <p className="text-xs text-ink/40">兩欄填同一單位的數字，我幫你算百分比</p>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                {selectedFormula.variables.map((v: FormulaVariable) => {
+                  const displayLabel =
+                    selectedFormulaId === 'time_reduction' && (v.key === 'before' || v.key === 'after')
+                      ? v.label.replace('任意單位', timeUnit).replace('數值', timeUnit)
+                      : v.label
+                  return (
+                    <div key={v.key} className="space-y-1">
+                      <label className="text-xs font-medium text-ink/70">
+                        {displayLabel}
+                        {v.estimated && (
+                          <span className="ml-1 text-ink/30 font-normal">（AI 估算）</span>
+                        )}
+                      </label>
+                      <input
+                        type="number"
+                        value={variableValues[v.key] ?? ''}
+                        onChange={(e) => handleVariableChange(v.key, e.target.value)}
+                        placeholder={v.placeholder}
+                        className="w-full px-3 py-2 text-sm border border-secondary/30 rounded-lg
+                                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+                                   text-ink placeholder:text-ink/30"
+                      />
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}

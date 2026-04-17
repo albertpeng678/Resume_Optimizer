@@ -77,6 +77,13 @@ export function buildFormulaSuggestionPrompt(
 2. 為每個變數填入 \`estimated\` 字段，基於 \`context\` 和 \`originalText\` 中的線索進行教育化猜測
 3. 返回**純 JSON 陣列**，不含 markdown 代碼塊、解釋文字或其他內容
 4. 每個變數的 placeholder 應該清楚說明用戶應該輸入什麼
+5. **time_reduction 專用**：before/after 變數的 label 必須包含具體單位（例：「優化前（分鐘）」「優化後（分鐘）」），根據 context 推測最合適的單位（秒/分鐘/小時/天），禁止使用「任意單位」
+${formulaHint === 'safety_net' ? `
+## 安全網模式
+此次觸發是因為用戶描述了一個成就，但沒有提到具體數字。
+請根據 context 中的描述，判斷最可能量化的 2 個面向，推薦最相關的公式類型。
+不要只推薦通用公式，要根據描述的工作性質選擇最合適的。
+` : ''}
 
 ## 輸出格式
 
