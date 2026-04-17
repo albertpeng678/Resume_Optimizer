@@ -4,6 +4,7 @@ interface InterviewProgressProps {
   gapsCompleted: number
   gapsTotal: number
   personaTitle: string
+  interviewGaps: string[]
 }
 
 function getEncouragement(pct: number): string {
@@ -15,18 +16,25 @@ function getEncouragement(pct: number): string {
   return '讓我們開始了解你的工作經歷'
 }
 
-export function InterviewProgress({ gapsCompleted, gapsTotal, personaTitle }: InterviewProgressProps) {
+export function InterviewProgress({
+  gapsCompleted,
+  gapsTotal,
+  personaTitle,
+  interviewGaps,
+}: InterviewProgressProps) {
   const pct = gapsTotal > 0 ? gapsCompleted / gapsTotal : 0
   const pctDisplay = Math.round(pct * 100)
+  const currentTopic =
+    gapsCompleted < interviewGaps.length ? interviewGaps[gapsCompleted] : null
 
   return (
     <div className="bg-surface border border-secondary/20 rounded-xl px-4 py-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-ink">
-          目標：{personaTitle}
-        </span>
+        <span className="text-sm font-medium text-ink">目標：{personaTitle}</span>
         <span className="text-sm text-ink/60">
-          {gapsCompleted}/{gapsTotal} 主題
+          {currentTopic
+            ? `主題 ${gapsCompleted + 1}/${gapsTotal}：${currentTopic}`
+            : `${gapsCompleted}/${gapsTotal} 主題`}
         </span>
       </div>
       <div className="w-full h-1.5 bg-secondary/20 rounded-full overflow-hidden">

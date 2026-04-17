@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Send, Sparkles, FileText, Loader2 } from 'lucide-react'
+import { Send, Sparkles, FileText, Loader2, PlusCircle, ArrowDown } from 'lucide-react'
 import { MessageBubble } from './MessageBubble'
 import { InterviewProgress } from './InterviewProgress'
 import { QuantifyModal } from './QuantifyModal'
@@ -25,6 +25,7 @@ interface ChatInterfaceProps {
   gapsCompleted: number
   initialHistory: Array<{ role: string; content: string }>
   quantifyData: QuantifyEntry[]
+  interviewGaps: string[]
 }
 
 export function ChatInterface({
@@ -34,37 +35,60 @@ export function ChatInterface({
   gapsCompleted: initialGapsCompleted,
   initialHistory,
   quantifyData: initialQuantifyData,
+  interviewGaps,
 }: ChatInterfaceProps) {
   const router = useRouter()
   const [messages, setMessages] = useState<ChatMessage[]>(
     initialHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }))
   )
+  const [streamingContent, setStreamingContent] = useState('')
   const [inputValue, setInputValue] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [gapsCompleted, setGapsCompleted] = useState(initialGapsCompleted)
   const [quantifyData, setQuantifyData] = useState<QuantifyEntry[]>(initialQuantifyData)
   const [quantifyTrigger, setQuantifyTrigger] = useState<QuantifyTrigger | null>(null)
   const [showQuantifyModal, setShowQuantifyModal] = useState(false)
+  const [manualQuantifyOpen, setManualQuantifyOpen] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showScrollButton, setShowScrollButton] = useState(false)
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isComplete = gapsCompleted >= gapsTotal && gapsTotal > 0
+  const currentTopicName = gapsCompleted < interviewGaps.length
+    ? interviewGaps[gapsCompleted]
+    : undefined
 
-  // Auto-scroll to bottom
+  function isNearBottom(): boolean {
+    const el = containerRef.current
+    if (!el) return true
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 150
+  }
+
+  function scrollToBottom() {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setShowScrollButton(false)
+  }
+
+  function handleScroll() {
+    setShowScrollButton(!isNearBottom())
+  }
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    if (isNearBottom()) {
+      scrollToBottom()
+    } else if (isStreaming) {
+      setShowScrollButton(true)
     }
-  }, [messages, isStreaming])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streamingContent, messages])
 
   const syncSession = useCallback(async () => {
     try {
       const res = await fetch(`/api/session/${sessionId}`)
-      if (!res.ok) {
-        console.warn('syncSession: unexpected status', res.status)
-        return
-      }
+      if (!res.ok) return
       const data = await res.json()
       setGapsCompleted(data.gaps_completed ?? 0)
       setQuantifyData(data.quantify_data ?? [])
@@ -78,14 +102,12 @@ export function ChatInterface({
 
     const userMessage = inputValue.trim()
     setInputValue('')
-    setQuantifyTrigger(null) // Clear previous trigger
-
-    // Optimistically append user message
+    setQuantifyTrigger(null)
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setIsStreaming(true)
+    setStreamingContent('')
 
-    // Append empty assistant message for streaming
-    setMessages((prev) => [...prev, { role: 'assistant', content: '' }])
+    let finalContent = ''
 
     try {
       const response = await fetch('/api/chat', {
@@ -94,9 +116,7 @@ export function ChatInterface({
         body: JSON.stringify({ sessionId, userMessage }),
       })
 
-      if (!response.ok || !response.body) {
-        throw new Error('Chat request failed')
-      }
+      if (!response.ok || !response.body) throw new Error('Chat request failed')
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
@@ -118,31 +138,26 @@ export function ChatInterface({
 
           if (eventType === 'text') {
             const chunk: string = JSON.parse(dataLine)
-            setMessages((prev) => {
-              const updated = [...prev]
-              const last = updated[updated.length - 1]
-              if (last?.role === 'assistant') {
-                updated[updated.length - 1] = { ...last, content: last.content + chunk }
-              }
-              return updated
-            })
+            setStreamingContent((prev) => prev + chunk)
+          } else if (eventType === 'replace') {
+            finalContent = JSON.parse(dataLine)
+            setStreamingContent(finalContent)
           } else if (eventType === 'trigger') {
             const trigger: QuantifyTrigger = JSON.parse(dataLine)
             setQuantifyTrigger(trigger)
+          } else if (eventType === 'done') {
+            setMessages((prev) => [...prev, { role: 'assistant', content: finalContent }])
+            setStreamingContent('')
           }
-          // 'done' event: stream complete
         }
       }
     } catch (err) {
       console.error('Chat error:', err)
-      setMessages((prev) => {
-        const updated = [...prev]
-        const last = updated[updated.length - 1]
-        if (last?.role === 'assistant' && last.content === '') {
-          updated[updated.length - 1] = { ...last, content: '抱歉，發生了錯誤，請再試一次。' }
-        }
-        return updated
-      })
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: '抱歉，發生了錯誤，請再試一次。' },
+      ])
+      setStreamingContent('')
     } finally {
       setIsStreaming(false)
       await syncSession()
@@ -151,11 +166,15 @@ export function ChatInterface({
   }
 
   function handleQuantifyComplete(entry: QuantifyEntry | null) {
-    if (entry) {
-      setQuantifyData((prev) => [...prev, entry])
-    }
+    if (entry) setQuantifyData((prev) => [...prev, entry])
     setShowQuantifyModal(false)
     setQuantifyTrigger(null)
+    inputRef.current?.focus()
+  }
+
+  function handleManualQuantifyComplete(entry: QuantifyEntry | null) {
+    if (entry) setQuantifyData((prev) => [...prev, entry])
+    setManualQuantifyOpen(false)
     inputRef.current?.focus()
   }
 
@@ -177,7 +196,7 @@ export function ChatInterface({
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-surface">
+    <div className="flex flex-col flex-1 min-h-0 bg-surface relative">
       {/* Header */}
       <div className="bg-white border-b border-secondary/20 px-4 py-3">
         <div className="max-w-2xl mx-auto">
@@ -185,28 +204,45 @@ export function ChatInterface({
             gapsCompleted={gapsCompleted}
             gapsTotal={gapsTotal}
             personaTitle={personaTitle}
+            interviewGaps={interviewGaps}
           />
         </div>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-4"
+      >
         <div className="max-w-2xl mx-auto space-y-4">
-          {messages.length === 0 && (
+          {messages.length === 0 && !isStreaming && (
             <div className="text-center py-12">
               <p className="text-ink/40 text-sm">職涯顧問已準備好，請開始對話</p>
             </div>
           )}
           {messages.map((msg, i) => (
-            <MessageBubble
-              key={i}
-              role={msg.role}
-              content={msg.content}
-              isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
-            />
+            <MessageBubble key={i} role={msg.role} content={msg.content} />
           ))}
+          {isStreaming && streamingContent && (
+            <MessageBubble role="assistant" content={streamingContent} isStreaming={true} />
+          )}
+          <div ref={messagesEndRef} />
         </div>
       </div>
+
+      {/* Scroll-to-bottom button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-36 right-6 bg-white shadow-lg border border-secondary/20
+                     rounded-full px-3 py-2 text-xs text-ink/70 hover:text-ink flex items-center gap-1
+                     transition-colors z-10"
+        >
+          <ArrowDown className="w-3 h-3" />
+          新訊息
+        </button>
+      )}
 
       {/* Quantify trigger banner */}
       {quantifyTrigger && !isStreaming && !showQuantifyModal && (
@@ -247,15 +283,9 @@ export function ChatInterface({
                          hover:bg-cta/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  正在生成優化履歷...
-                </>
+                <><Loader2 className="w-4 h-4 animate-spin" />正在生成優化履歷...</>
               ) : (
-                <>
-                  <FileText className="w-4 h-4" />
-                  生成優化履歷
-                </>
+                <><FileText className="w-4 h-4" />生成優化履歷</>
               )}
             </button>
           </div>
@@ -264,7 +294,17 @@ export function ChatInterface({
 
       {/* Input */}
       <div className="bg-white border-t border-secondary/20 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex gap-2">
+        <div className="max-w-2xl mx-auto flex gap-2 items-center">
+          <button
+            onClick={() => setManualQuantifyOpen(true)}
+            disabled={isStreaming}
+            title="手動觸發量化訪談"
+            className="flex items-center gap-1 px-2 py-2 text-secondary hover:text-primary
+                       transition-colors disabled:opacity-40 shrink-0"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span className="text-xs hidden sm:inline">量化數字</span>
+          </button>
           <input
             ref={inputRef}
             type="text"
@@ -288,7 +328,7 @@ export function ChatInterface({
         </div>
       </div>
 
-      {/* Quantify Modal */}
+      {/* Auto-triggered Quantify Modal */}
       {quantifyTrigger && (
         <QuantifyModal
           isOpen={showQuantifyModal}
@@ -299,6 +339,16 @@ export function ChatInterface({
           onClose={() => setShowQuantifyModal(false)}
         />
       )}
+
+      {/* Manually-triggered Quantify Modal */}
+      <QuantifyModal
+        isOpen={manualQuantifyOpen}
+        topic={currentTopicName || '工作成就'}
+        context={`使用者手動觸發量化訪談，請詢問他想量化哪個成就（主題：${currentTopicName || '工作成就'}）`}
+        sessionId={sessionId}
+        onComplete={handleManualQuantifyComplete}
+        onClose={() => setManualQuantifyOpen(false)}
+      />
     </div>
   )
 }

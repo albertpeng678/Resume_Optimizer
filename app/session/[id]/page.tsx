@@ -29,7 +29,8 @@ export default async function SessionPage({
       gapsTotal={session.gaps_total ?? persona.interview_gaps.length}
       gapsCompleted={session.gaps_completed ?? 0}
       initialHistory={session.conversation_history ?? []}
-      quantifyData={session.quantify_data ?? []}
+      quantifyData={(session as any).quantify_data ?? []}
+      interviewGaps={persona.interview_gaps}
     />
   )
 }
