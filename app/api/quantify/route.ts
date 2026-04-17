@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'crypto'
 import OpenAI from 'openai'
 import {
-  QuantifyEntry,
-  QuantifyResult,
+  FormulaTemplate,
+  buildFormulaSuggestionPrompt,
 } from '@/lib/agents/quantify-advisor'
 import { createServerClient } from '@/lib/supabase'
 
@@ -12,17 +13,12 @@ interface QuantifyRequest {
   sessionId: string
   topic: string
   context: string
-  messages: Array<{ role: 'user' | 'assistant'; content: string }>
-  roundNumber: number
-  userMessage: string
-  entryId?: string
+  original_text: string
+  formula_hint: string
 }
 
 interface QuantifyResponse {
-  assistantMessage: string
-  roundNumber: number
-  isComplete: boolean
-  result: QuantifyResult | null
+  formulas: FormulaTemplate[]
   entryId: string
 }
 
@@ -34,36 +30,88 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const { sessionId, topic, context, messages, roundNumber, userMessage, entryId } = body
+  const { sessionId, topic, context, original_text, formula_hint } = body
 
+  // Validate all required fields
   if (!sessionId || typeof sessionId !== 'string') {
     return NextResponse.json({ error: 'sessionId is required' }, { status: 400 })
   }
-  if (!topic || !context || !userMessage) {
-    return NextResponse.json({ error: 'topic, context, and userMessage are required' }, { status: 400 })
+  if (!topic || typeof topic !== 'string') {
+    return NextResponse.json({ error: 'topic is required' }, { status: 400 })
   }
-  if (!roundNumber || roundNumber < 1 || roundNumber > 5) {
-    return NextResponse.json({ error: 'roundNumber must be 1-5' }, { status: 400 })
+  if (!context || typeof context !== 'string') {
+    return NextResponse.json({ error: 'context is required' }, { status: 400 })
   }
-  if (!Array.isArray(messages)) {
-    return NextResponse.json({ error: 'messages must be an array' }, { status: 400 })
+  if (!original_text || typeof original_text !== 'string') {
+    return NextResponse.json({ error: 'original_text is required' }, { status: 400 })
+  }
+  if (!formula_hint || typeof formula_hint !== 'string') {
+    return NextResponse.json({ error: 'formula_hint is required' }, { status: 400 })
   }
 
+  // Verify session exists
   const db = createServerClient()
-  const { data: session, error } = await db
+  const { data: session, error: sessionError } = await db
     .from('sessions')
-    .select('quantify_data')
+    .select('id')
     .eq('id', sessionId)
     .single()
 
-  if (error || !session) {
+  if (sessionError || !session) {
     return NextResponse.json({ error: 'Session not found' }, { status: 404 })
   }
 
-  // Assign or reuse entry ID
-  // TODO: Step 4 - Rewrite this route to use new formula suggestion API
-  return NextResponse.json(
-    { error: 'This endpoint will be rewritten in Step 4' },
-    { status: 501 }
-  )
+  // Build prompt and call OpenAI
+  const prompt = buildFormulaSuggestionPrompt(topic, context, original_text, formula_hint)
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+    })
+
+    const responseText = response.choices[0].message.content
+    if (!responseText) {
+      return NextResponse.json(
+        { error: 'Empty response from OpenAI' },
+        { status: 500 }
+      )
+    }
+
+    // Parse JSON response
+    let formulas: FormulaTemplate[]
+    try {
+      formulas = JSON.parse(responseText)
+    } catch {
+      return NextResponse.json(
+        { error: 'Failed to parse formula suggestions' },
+        { status: 500 }
+      )
+    }
+
+    // Validate that formulas is an array
+    if (!Array.isArray(formulas)) {
+      return NextResponse.json(
+        { error: 'Failed to parse formula suggestions' },
+        { status: 500 }
+      )
+    }
+
+    // Generate entry ID
+    const entryId = randomUUID()
+
+    const result: QuantifyResponse = {
+      formulas,
+      entryId,
+    }
+
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error('OpenAI API error:', error)
+    return NextResponse.json(
+      { error: 'Failed to call OpenAI API' },
+      { status: 500 }
+    )
+  }
 }
