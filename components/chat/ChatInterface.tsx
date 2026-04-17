@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Send, FileText, Loader2, ArrowDown } from 'lucide-react'
 import { MessageBubble } from './MessageBubble'
@@ -54,6 +54,17 @@ export function ChatInterface({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isComplete = gapsCompleted >= gapsTotal && gapsTotal > 0
+
+  const activeTrigger = useMemo<QuantifyTrigger | null>(() => {
+    if (quantifyTrigger) return quantifyTrigger
+    if (safetyNetTopic) return {
+      topic: safetyNetTopic,
+      context: `使用者剛完成了關於「${safetyNetTopic}」的討論，嘗試幫助量化這個成就`,
+      original_text: '',
+      formula_hint: 'safety_net',
+    }
+    return null
+  }, [quantifyTrigger, safetyNetTopic])
 
   function isNearBottom(): boolean {
     const el = containerRef.current
@@ -290,14 +301,7 @@ export function ChatInterface({
       </div>
 
       <QuantifySidebar
-        trigger={quantifyTrigger ?? (
-          safetyNetTopic ? {
-            topic: safetyNetTopic,
-            context: `使用者剛完成了關於「${safetyNetTopic}」的討論，嘗試幫助量化這個成就`,
-            original_text: '',
-            formula_hint: 'safety_net',
-          } : null
-        )}
+        trigger={activeTrigger}
         sessionId={sessionId}
         onComplete={(entry) => {
           handleQuantifyComplete(entry)
